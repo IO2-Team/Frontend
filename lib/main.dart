@@ -1,4 +1,6 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:openapi/openapi.dart';
 
 void main() {
   runApp(const MyApp());
@@ -24,13 +26,13 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'Flutter Demo Home Page', api: Openapi(dio: Dio(BaseOptions(baseUrl: 'https://dionizos-backend-app.azurewebsites.net')), serializers: standardSerializers)),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  const MyHomePage({super.key, required this.title, required this.api});
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -42,6 +44,7 @@ class MyHomePage extends StatefulWidget {
   // always marked "final".
 
   final String title;
+  final Openapi api;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -49,6 +52,12 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+
+  void _loadData() async
+  {
+    final events = await widget.api.getEventApi().getEvents();
+    events.data;
+  }
 
   void _incrementCounter() {
     setState(() {
@@ -58,6 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
       // _counter without calling setState(), then the build method would not be
       // called again, and so nothing would appear to happen.
       _counter++;
+
     });
   }
 
