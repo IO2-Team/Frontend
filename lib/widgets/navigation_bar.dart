@@ -24,6 +24,13 @@ class CustomNavigationBar extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               TextButton(
+                onPressed: () => context.go('/tests'),
+                child: _NavBarItem('Tests'),
+              ),
+              SizedBox(
+                width: 60,
+              ),
+              TextButton(
                 onPressed: () => context.go('/signUp'),
                 child: _NavBarItem('Sign Up'),
               ),
