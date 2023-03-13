@@ -1,3 +1,5 @@
+# dll was too big
+*.dll
 # Miscellaneous
 *.class
 *.log
