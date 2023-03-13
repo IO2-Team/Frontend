@@ -20,8 +20,6 @@ class _SignUpFormState extends State<SignUpForm> {
   final _emailTextController = TextEditingController();
   final _passwordTextController = TextEditingController();
 
-  late Openapi api;
-
   double _formProgress = 0;
 
   @override
