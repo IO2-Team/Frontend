@@ -5,6 +5,7 @@ import 'package:openapi/openapi.dart';
 import 'package:provider/provider.dart';
 import 'package:webfrontend_dionizos/api/api_provider.dart';
 import 'package:webfrontend_dionizos/views/home/home_view.dart';
+import 'package:webfrontend_dionizos/views/organizer_panel/organizer_panel_view.dart';
 import 'package:webfrontend_dionizos/views/signIn/signIn_view.dart';
 import 'package:webfrontend_dionizos/views/signUp/signup_view.dart';
 import 'package:webfrontend_dionizos/views/tests/tests_view.dart';
@@ -41,6 +42,12 @@ final GoRouter _router = GoRouter(
           path: 'tests',
           builder: (BuildContext context, GoRouterState state) {
             return const TestsView();
+          },
+        ),
+        GoRoute(
+          path: 'organizerPanel',
+          builder: (BuildContext context, GoRouterState state) {
+            return const OrganizerPanelView();
           },
         ),
       ],

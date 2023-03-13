@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:webfrontend_dionizos/widgets/singUp_form.dart';
+import 'package:webfrontend_dionizos/views/signUp/singUp_form.dart';
 
 class SignUpView extends StatelessWidget {
   const SignUpView();
