@@ -29,6 +29,7 @@ class PanelNavigationBar extends StatelessWidget {
                 child: Icon(
                   Icons.account_circle_outlined,
                   size: 40,
+                  color: Colors.green,
                 ),
               ),
             ],

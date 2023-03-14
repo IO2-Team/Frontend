@@ -4,18 +4,20 @@ import 'package:go_router/go_router.dart';
 import 'package:openapi/openapi.dart';
 import 'package:provider/provider.dart';
 import 'package:webfrontend_dionizos/api/api_provider.dart';
+import 'package:webfrontend_dionizos/api/events_view_model.dart';
 import 'package:webfrontend_dionizos/views/home/home_view.dart';
+import 'package:webfrontend_dionizos/views/organizer_panel/event_details_view.dart';
 import 'package:webfrontend_dionizos/views/organizer_panel/organizer_panel_view.dart';
 import 'package:webfrontend_dionizos/views/signIn/signIn_view.dart';
 import 'package:webfrontend_dionizos/views/signUp/signup_view.dart';
 import 'package:webfrontend_dionizos/views/tests/tests_view.dart';
 
 void main() => runApp(
-      ChangeNotifierProvider<APIProvider>(
-        create: (_) => APIProvider(),
-        child: MyApp(),
-      ),
-    );
+    // ChangeNotifierProvider<APIProvider>(
+    //   create: (_) => APIProvider(),
+    //   child: MyApp(),
+    // ),
+    MyApp());
 
 /// The route configuration.
 final GoRouter _router = GoRouter(
@@ -45,11 +47,18 @@ final GoRouter _router = GoRouter(
           },
         ),
         GoRoute(
-          path: 'organizerPanel',
-          builder: (BuildContext context, GoRouterState state) {
-            return const OrganizerPanelView();
-          },
-        ),
+            path: 'organizerPanel',
+            builder: (BuildContext context, GoRouterState state) {
+              return OrganizerPanelView();
+            },
+            routes: [
+              GoRoute(
+                path: 'eventDetails',
+                builder: (BuildContext context, GoRouterState state) {
+                  return EventDetailsView();
+                },
+              ),
+            ]),
       ],
     ),
   ],
@@ -58,19 +67,25 @@ final GoRouter _router = GoRouter(
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.green,
-        textTheme: Theme.of(context).textTheme.apply(fontFamily: 'Open Sans'),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<APIProvider>(create: (_) => APIProvider()),
+        ChangeNotifierProvider(create: (_) => EventsViewModel())
+      ],
+      child: MaterialApp.router(
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          primarySwatch: Colors.green,
+          textTheme: Theme.of(context).textTheme.apply(fontFamily: 'Open Sans'),
+        ),
+        routerConfig: _router,
+        // home: MyHomePage(
+        //     title: 'Flutter Demo Home Page',
+        //     api: Openapi(
+        //         dio: Dio(BaseOptions(
+        //             baseUrl: 'https://dionizos-backend-app.azurewebsites.net')),
+        //         serializers: standardSerializers)),
       ),
-      routerConfig: _router,
-      // home: MyHomePage(
-      //     title: 'Flutter Demo Home Page',
-      //     api: Openapi(
-      //         dio: Dio(BaseOptions(
-      //             baseUrl: 'https://dionizos-backend-app.azurewebsites.net')),
-      //         serializers: standardSerializers)),
     );
   }
 }
