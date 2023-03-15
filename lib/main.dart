@@ -4,8 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:openapi/openapi.dart';
 import 'package:provider/provider.dart';
 import 'package:webfrontend_dionizos/api/api_provider.dart';
-import 'package:webfrontend_dionizos/api/events_view_model.dart';
+import 'package:webfrontend_dionizos/api/events_controller.dart';
 import 'package:webfrontend_dionizos/views/home/home_view.dart';
+import 'package:webfrontend_dionizos/views/organizer_panel/event_creation_view.dart';
 import 'package:webfrontend_dionizos/views/organizer_panel/event_details_view.dart';
 import 'package:webfrontend_dionizos/views/organizer_panel/organizer_panel_view.dart';
 import 'package:webfrontend_dionizos/views/signIn/signIn_view.dart';
@@ -58,6 +59,12 @@ final GoRouter _router = GoRouter(
                   return EventDetailsView();
                 },
               ),
+              GoRoute(
+                path: 'addEvent',
+                builder: (BuildContext context, GoRouterState state) {
+                  return EventCreationView();
+                },
+              ),
             ]),
       ],
     ),
@@ -70,7 +77,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<APIProvider>(create: (_) => APIProvider()),
-        ChangeNotifierProvider(create: (_) => EventsViewModel())
+        ChangeNotifierProvider(create: (_) => EventsController())
       ],
       child: MaterialApp.router(
         title: 'Flutter Demo',

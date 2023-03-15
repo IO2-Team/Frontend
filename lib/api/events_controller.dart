@@ -1,9 +1,10 @@
+import 'package:built_collection/built_collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:openapi/openapi.dart';
 import 'package:dio/dio.dart';
 
-class EventsViewModel extends ChangeNotifier {
-  EventsViewModel() {
+class EventsController extends ChangeNotifier {
+  EventsController() {
     getEvents();
   }
 
@@ -35,6 +36,25 @@ class EventsViewModel extends ChangeNotifier {
     final eventsResponse = await api.getEvents();
     setEventsList(eventsResponse.data!.asList());
     setLoading(false);
+  }
+
+  addEvent(
+      {required String sessionToken,
+      required String title,
+      required String name,
+      required int freePlace,
+      required DateTime startTime,
+      required DateTime endTime,
+      required List<int> categories,
+      String? placeSchema}) async {
+    api.addEvent(
+        sessionToken: sessionToken,
+        title: title,
+        name: name,
+        freePlace: freePlace,
+        startTime: startTime.millisecondsSinceEpoch,
+        endTime: endTime.millisecondsSinceEpoch,
+        categories: BuiltList<int>.from(categories));
   }
 
   setSelectedEvent(Event event) {

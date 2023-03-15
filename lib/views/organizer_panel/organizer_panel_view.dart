@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:openapi/openapi.dart';
 import 'package:provider/provider.dart';
-import 'package:webfrontend_dionizos/api/events_view_model.dart';
+import 'package:webfrontend_dionizos/api/events_controller.dart';
 import 'package:webfrontend_dionizos/views/organizer_panel/event_list_item.dart';
 import 'package:webfrontend_dionizos/views/organizer_panel/panel_navigation_bar.dart';
 import 'package:webfrontend_dionizos/widgets/centered_view.dart';
@@ -10,7 +10,7 @@ import 'package:webfrontend_dionizos/widgets/centered_view.dart';
 class OrganizerPanelView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    EventsViewModel eventsViewModel = context.watch<EventsViewModel>();
+    EventsController eventsController = context.watch<EventsController>();
     return Scaffold(
       backgroundColor: Colors.white,
       body: CenteredView(
@@ -28,7 +28,9 @@ class OrganizerPanelView extends StatelessWidget {
                   style: TextStyle(fontSize: 20),
                 ),
                 ElevatedButton.icon(
-                  onPressed: null,
+                  onPressed: () {
+                    context.go('/organizerPanel/addEvent');
+                  },
                   icon: Icon(
                     Icons.add,
                     color: Colors.white,
@@ -44,7 +46,7 @@ class OrganizerPanelView extends StatelessWidget {
             SizedBox(
               height: 30,
             ),
-            eventsList(eventsViewModel),
+            eventsList(eventsController),
           ],
         ),
       ),
@@ -52,8 +54,8 @@ class OrganizerPanelView extends StatelessWidget {
   }
 }
 
-Widget eventsList(EventsViewModel eventsViewModel) {
-  if (eventsViewModel.loading == true) {
+Widget eventsList(EventsController eventsController) {
+  if (eventsController.loading == true) {
     return Center(
       child: Container(
         padding: const EdgeInsets.all(20.0),
@@ -63,14 +65,14 @@ Widget eventsList(EventsViewModel eventsViewModel) {
   }
   return Expanded(
     child: ListView.separated(
-        itemCount: eventsViewModel.eventsList.length,
+        itemCount: eventsController.eventsList.length,
         separatorBuilder: (context, index) => Divider(),
         itemBuilder: ((context, index) {
-          Event event = eventsViewModel.eventsList[index];
+          Event event = eventsController.eventsList[index];
           return EventsListItem(
             event: event,
             onTap: () {
-              eventsViewModel.setSelectedEvent(event);
+              eventsController.setSelectedEvent(event);
               context.go('/organizerPanel/eventDetails');
             },
           );

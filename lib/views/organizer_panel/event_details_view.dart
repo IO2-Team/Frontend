@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:openapi/openapi.dart';
 import 'package:provider/provider.dart';
-import 'package:webfrontend_dionizos/api/events_view_model.dart';
-import 'package:webfrontend_dionizos/views/organizer_panel/event_list_item.dart';
+import 'package:webfrontend_dionizos/api/events_controller.dart';
 import 'package:webfrontend_dionizos/views/organizer_panel/panel_navigation_bar.dart';
 import 'package:webfrontend_dionizos/widgets/centered_view.dart';
 
 class EventDetailsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    EventsViewModel eventsViewModel = context.watch<EventsViewModel>();
+    EventsController eventsController = context.watch<EventsController>();
     return Scaffold(
       backgroundColor: Colors.white,
       body: CenteredView(
@@ -19,7 +18,7 @@ class EventDetailsView extends StatelessWidget {
             SizedBox(
               height: 40,
             ),
-            eventDetails(eventsViewModel.selectedEvent),
+            eventDetails(eventsController.selectedEvent),
           ],
         ),
       ),
