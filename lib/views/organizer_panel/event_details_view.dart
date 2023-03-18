@@ -1,11 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:openapi/openapi.dart';
 import 'package:provider/provider.dart';
 import 'package:webfrontend_dionizos/api/events_controller.dart';
 import 'package:webfrontend_dionizos/views/organizer_panel/panel_navigation_bar.dart';
 import 'package:webfrontend_dionizos/widgets/centered_view.dart';
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
-class EventDetailsView extends StatelessWidget {
+class EventDetailsView extends StatefulWidget {
+  @override
+  State<EventDetailsView> createState() => _EventDetailsState();
+}
+
+class _EventDetailsState extends State<EventDetailsView> {
+  final _formKey = GlobalKey<FormState>();
+
+  final _titleTextController = TextEditingController();
+  final _nameTextController = TextEditingController();
+  final _freePlacesNumberController = TextEditingController();
+  final _startDateTextController = TextEditingController();
+  final _endDateTextController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     EventsController eventsController = context.watch<EventsController>();
@@ -26,40 +43,192 @@ class EventDetailsView extends StatelessWidget {
   }
 
   Widget eventDetails(Event event) {
-    return Container(
-      decoration: BoxDecoration(
-          border: Border.all(width: 1),
-          borderRadius: BorderRadius.all(Radius.circular(5.0))),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(
-          event.title ?? "Null",
-          style: TextStyle(fontSize: 25),
+    _titleTextController.text = event.title!;
+    _nameTextController.text = event.name!;
+    _freePlacesNumberController.text = event.freePlace.toString();
+    _startDateTextController.text = DateFormat('yyyy-MM-dd')
+        .format(DateTime.fromMillisecondsSinceEpoch(event.startTime!));
+    _endDateTextController.text = DateFormat('yyyy-MM-dd')
+        .format(DateTime.fromMillisecondsSinceEpoch(event.endTime!));
+    return Form(
+      key: _formKey,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 20),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextFormField(
+                controller: _titleTextController,
+                decoration: const InputDecoration(
+                    icon: Icon(Icons.title),
+                    border: OutlineInputBorder(),
+                    hintText: 'Enter event Title'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter event Title';
+                  }
+                  return null;
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextFormField(
+                keyboardType: TextInputType.multiline,
+                maxLines: null,
+                controller: _nameTextController,
+                decoration: const InputDecoration(
+                    icon: Icon(Icons.description),
+                    border: OutlineInputBorder(),
+                    hintText: 'Enter event description'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter event description';
+                  } else
+                    return null;
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextFormField(
+                controller: _freePlacesNumberController,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                decoration: const InputDecoration(
+                    icon: Icon(Icons.numbers),
+                    border: OutlineInputBorder(),
+                    hintText: 'Enter number of places'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter number of places';
+                  } else if (int.parse(value) <= 0) {
+                    return "Number of free places must be > 0";
+                  }
+                  return null;
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextFormField(
+                readOnly: true,
+                controller: _startDateTextController,
+                decoration: const InputDecoration(
+                    icon: Icon(Icons.calendar_today_rounded),
+                    border: OutlineInputBorder(),
+                    hintText: 'Enter start date'),
+                onTap: () async {
+                  DateTime? pickedStartDate = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime(2100));
+
+                  if (pickedStartDate != null) {
+                    setState(() {
+                      _startDateTextController.text =
+                          DateFormat('yyyy-MM-dd').format(pickedStartDate);
+                    });
+                  }
+                },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter start date';
+                  }
+                  return null;
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextFormField(
+                readOnly: true,
+                controller: _endDateTextController,
+                decoration: const InputDecoration(
+                    icon: Icon(Icons.calendar_today_rounded),
+                    border: OutlineInputBorder(),
+                    hintText: 'Enter end date'),
+                onTap: () async {
+                  DateTime? pickedEndDate = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime(2100));
+                  if (pickedEndDate != null) {
+                    setState(() {
+                      _endDateTextController.text =
+                          DateFormat('yyyy-MM-dd').format(pickedEndDate);
+                    });
+                  }
+                },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter end date';
+                  } else if (_startDateTextController.text != null &&
+                      DateTime.parse(_startDateTextController.text).isAfter(
+                          DateTime.parse(_endDateTextController.text))) {
+                    return 'End date must be after start date';
+                  }
+                  return null;
+                },
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  style: ButtonStyle(
+                    foregroundColor: MaterialStateProperty.resolveWith(
+                        (Set<MaterialState> states) {
+                      return states.contains(MaterialState.disabled)
+                          ? null
+                          : Colors.white;
+                    }),
+                    backgroundColor: MaterialStateProperty.resolveWith(
+                        (Set<MaterialState> states) {
+                      return states.contains(MaterialState.disabled)
+                          ? null
+                          : Colors.green;
+                    }),
+                  ),
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      context.go('/organizerPanel');
+                    }
+                  },
+                  child: const Text('Save changes'),
+                ),
+                SizedBox(
+                  width: 20,
+                ),
+                TextButton(
+                  style: ButtonStyle(
+                    foregroundColor: MaterialStateProperty.resolveWith(
+                        (Set<MaterialState> states) {
+                      return states.contains(MaterialState.disabled)
+                          ? null
+                          : Colors.white;
+                    }),
+                    backgroundColor: MaterialStateProperty.resolveWith(
+                        (Set<MaterialState> states) {
+                      return states.contains(MaterialState.disabled)
+                          ? null
+                          : Colors.red;
+                    }),
+                  ),
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      context.go('/organizerPanel');
+                    }
+                  },
+                  child: const Text('Cancel'),
+                ),
+              ],
+            )
+          ],
         ),
-        SizedBox(
-          height: 15,
-        ),
-        Text(
-          event.name ?? "Null",
-          style: TextStyle(fontSize: 20),
-        ),
-        SizedBox(
-          height: 10,
-        ),
-        SizedBox(
-          height: 30,
-          child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: (event.categories?.length ?? 0),
-              separatorBuilder: (context, index) => VerticalDivider(),
-              itemBuilder: ((context, index) {
-                Category category = event.categories?[index] ?? Category();
-                return Text(
-                  category.name ?? "Null",
-                  textAlign: TextAlign.center,
-                );
-              })),
-        )
-      ]),
+      ),
     );
   }
 }

@@ -5,7 +5,7 @@ import 'package:dio/dio.dart';
 
 class EventsController extends ChangeNotifier {
   EventsController() {
-    getEvents();
+    getEvents("placeholder");
   }
 
   EventApi api = Openapi(
@@ -31,9 +31,9 @@ class EventsController extends ChangeNotifier {
     _events = events;
   }
 
-  getEvents() async {
+  getEvents(String sessionToken) async {
     setLoading(true);
-    final eventsResponse = await api.getEvents();
+    final eventsResponse = await api.getMyEvents(sessionToken: sessionToken);
     setEventsList(eventsResponse.data!.asList());
     setLoading(false);
   }
@@ -59,5 +59,10 @@ class EventsController extends ChangeNotifier {
 
   setSelectedEvent(Event event) {
     _selectedEvent = event;
+  }
+
+  modifyEvent(Event event) async {
+    api.patchEvent(
+        sessionToken: "assdfsa", id: event.id.toString(), event: event);
   }
 }

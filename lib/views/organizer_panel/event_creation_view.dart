@@ -11,8 +11,6 @@ import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 class EventCreationView extends StatefulWidget {
-  const EventCreationView();
-
   @override
   State<EventCreationView> createState() => _EventCreationState();
 }
@@ -70,6 +68,8 @@ class _EventCreationState extends State<EventCreationView> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextFormField(
+                keyboardType: TextInputType.multiline,
+                maxLines: null,
                 controller: _nameTextController,
                 decoration: const InputDecoration(
                     icon: Icon(Icons.description),
