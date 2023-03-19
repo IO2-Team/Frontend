@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:go_router/go_router.dart';
 
 class SignInForm extends StatefulWidget {
   const SignInForm();
@@ -84,10 +85,10 @@ class _SignUpFormState extends State<SignInForm> {
               ),
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
-                  log("Correct");
+                  context.go('/organizerPanel');
                 }
               },
-              child: const Text('Sign up'),
+              child: const Text('Sign in'),
             ),
           ],
         ),

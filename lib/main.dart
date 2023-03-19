@@ -42,12 +42,6 @@ final GoRouter _router = GoRouter(
           },
         ),
         GoRoute(
-          path: 'tests',
-          builder: (BuildContext context, GoRouterState state) {
-            return const TestsView();
-          },
-        ),
-        GoRoute(
             path: 'organizerPanel',
             builder: (BuildContext context, GoRouterState state) {
               return OrganizerPanelView();

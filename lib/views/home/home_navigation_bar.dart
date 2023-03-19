@@ -23,10 +23,6 @@ class HomeNavigationBar extends StatelessWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              TextButton(
-                onPressed: () => context.go('/tests'),
-                child: _NavBarItem('Tests'),
-              ),
               SizedBox(
                 width: 60,
               ),

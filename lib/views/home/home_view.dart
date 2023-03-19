@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:webfrontend_dionizos/widgets/call_to_action.dart';
 import 'package:webfrontend_dionizos/widgets/centered_view.dart';
 import 'package:webfrontend_dionizos/views/home/home_page_details.dart';
 import 'package:webfrontend_dionizos/views/home/home_navigation_bar.dart';

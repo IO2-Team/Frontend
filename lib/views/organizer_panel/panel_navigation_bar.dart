@@ -18,14 +18,19 @@ class PanelNavigationBar extends StatelessWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              TextButton(
-                //onPressed: () => context.go('/accSettings'),
-                onPressed: null,
-                child: Icon(
+              PopupMenuButton(
+                offset: Offset(0, 50),
+                icon: Icon(
                   Icons.account_circle_outlined,
                   size: 40,
                   color: Colors.green,
                 ),
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                      child: TextButton(
+                          onPressed: () => context.go('/'),
+                          child: Text('Sign out')))
+                ],
               ),
             ],
           )
