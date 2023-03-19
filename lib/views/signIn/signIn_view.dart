@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:webfrontend_dionizos/widgets/singIn_form.dart';
+import 'package:webfrontend_dionizos/views/signIn/singIn_form.dart';
 
 class SignInView extends StatelessWidget {
   const SignInView();
