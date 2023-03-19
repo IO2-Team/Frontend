@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:go_router/go_router.dart';
 import 'package:openapi/openapi.dart';
 import 'package:provider/provider.dart';
 import 'package:webfrontend_dionizos/api/api_provider.dart';
@@ -19,8 +20,6 @@ class _SignUpFormState extends State<SignUpForm> {
   final _usernameTextController = TextEditingController();
   final _emailTextController = TextEditingController();
   final _passwordTextController = TextEditingController();
-
-  late Openapi api;
 
   double _formProgress = 0;
 
@@ -129,7 +128,7 @@ class _SignUpFormState extends State<SignUpForm> {
               ),
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
-                  log("Correct");
+                  context.go('/organizerPanel');
                 }
               },
               child: const Text('Sign up'),

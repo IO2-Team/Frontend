@@ -4,8 +4,8 @@ import 'dart:ui' as ui;
 
 import 'package:webfrontend_dionizos/widgets/gradient_text.dart';
 
-class CustomNavigationBar extends StatelessWidget {
-  const CustomNavigationBar({Key? key}) : super(key: key);
+class HomeNavigationBar extends StatelessWidget {
+  const HomeNavigationBar({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -23,10 +23,6 @@ class CustomNavigationBar extends StatelessWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              TextButton(
-                onPressed: () => context.go('/tests'),
-                child: _NavBarItem('Tests'),
-              ),
               SizedBox(
                 width: 60,
               ),
