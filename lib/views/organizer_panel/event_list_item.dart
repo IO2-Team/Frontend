@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:multi_select_flutter/chip_display/multi_select_chip_display.dart';
+import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:openapi/openapi.dart';
 
 class EventsListItem extends StatelessWidget {
@@ -12,6 +14,7 @@ class EventsListItem extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
+        padding: EdgeInsets.all(30),
         decoration: BoxDecoration(
             border: Border.all(width: 1),
             borderRadius: BorderRadius.all(Radius.circular(5.0))),
@@ -30,22 +33,24 @@ class EventsListItem extends StatelessWidget {
           SizedBox(
             height: 10,
           ),
-          SizedBox(
-            height: 30,
-            child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: (event.categories?.length ?? 0),
-                separatorBuilder: (context, index) => VerticalDivider(),
-                itemBuilder: ((context, index) {
-                  Category category = event.categories?[index] ?? Category();
-                  return Text(
-                    category.name ?? "Null",
-                    textAlign: TextAlign.center,
-                  );
-                })),
-          )
+          SizedBox(height: 30, child: categoriesList(eventCategories(event)))
         ]),
       ),
+    );
+  }
+
+  List<Category> eventCategories(Event event) {
+    if (event.categories == null) {
+      return List<Category>.empty();
+    }
+    return event.categories!.toList();
+  }
+
+  Widget categoriesList(List<Category> categories) {
+    return MultiSelectChipDisplay(
+      items: categories.map((e) => MultiSelectItem(e, e.name!)).toList(),
+      chipColor: Colors.green,
+      textStyle: TextStyle(color: Colors.white),
     );
   }
 }

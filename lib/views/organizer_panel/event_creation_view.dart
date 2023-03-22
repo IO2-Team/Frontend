@@ -1,14 +1,23 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
+import 'package:multi_select_flutter/bottom_sheet/multi_select_bottom_sheet_field.dart';
+import 'package:multi_select_flutter/multi_select_flutter.dart';
+import 'package:multi_select_flutter/util/multi_select_item.dart';
 import 'package:openapi/openapi.dart';
 import 'package:provider/provider.dart';
+import 'package:webfrontend_dionizos/api/Locaction/get_current_location.dart';
+import 'package:webfrontend_dionizos/api/categories_controller.dart';
 import 'package:webfrontend_dionizos/api/events_controller.dart';
 import 'package:webfrontend_dionizos/views/organizer_panel/panel_navigation_bar.dart';
 import 'package:webfrontend_dionizos/widgets/centered_view.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:open_street_map_search_and_pick/open_street_map_search_and_pick.dart';
 
 class EventCreationView extends StatefulWidget {
   @override
@@ -23,9 +32,18 @@ class _EventCreationState extends State<EventCreationView> {
   final _freePlacesNumberController = TextEditingController();
   final _startDateTextController = TextEditingController();
   final _endDateTextController = TextEditingController();
+  final _locationTextController = TextEditingController();
+  final _categoriesTextController = TextEditingController();
+  late double latitude = 52.14;
+  late double longitude = 21.01;
+  List<Category> categories = [];
+  List<Category> chosenCategories = [];
 
   @override
   Widget build(BuildContext context) {
+    CategoriesController categoriesController =
+        context.watch<CategoriesController>();
+    setCurrentPosition();
     return Scaffold(
       backgroundColor: Colors.white,
       body: CenteredView(
@@ -36,14 +54,14 @@ class _EventCreationState extends State<EventCreationView> {
             SizedBox(
               height: 40,
             ),
-            eventCreation(),
+            eventCreation(categoriesController.categoriesList),
           ],
         ),
       ),
     );
   }
 
-  Widget eventCreation() {
+  Widget eventCreation(List<Category> categories) {
     return Expanded(
       child: ListView(children: [
         Form(
@@ -170,6 +188,78 @@ class _EventCreationState extends State<EventCreationView> {
                     },
                   ),
                 ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextFormField(
+                    readOnly: true,
+                    controller: _locationTextController,
+                    decoration: const InputDecoration(
+                        icon: Icon(Icons.calendar_today_rounded),
+                        border: OutlineInputBorder(),
+                        hintText: 'Enter location'),
+                    onTap: () async {
+                      await showDialog(
+                          context: context,
+                          builder: ((context) {
+                            return Dialog(
+                              child: OpenStreetMapSearchAndPick(
+                                  center: LatLong(latitude, longitude),
+                                  onPicked: (pickedData) {
+                                    _locationTextController.text =
+                                        pickedData.address;
+                                    longitude = pickedData.latLong.longitude;
+                                    latitude = pickedData.latLong.latitude;
+                                    Navigator.pop(context);
+                                  }),
+                            );
+                          }));
+                    },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter location';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: FormField(
+                    builder: (FormFieldState state) => Column(children: [
+                      MultiSelectDialogField(
+                          chipDisplay: MultiSelectChipDisplay(
+                            items: categories
+                                .map((e) => MultiSelectItem(e, e.name!))
+                                .toList(),
+                            chipColor: Colors.green,
+                            textStyle: TextStyle(color: Colors.white),
+                          ),
+                          buttonIcon: Icon(Icons.category),
+                          buttonText: Text('Choose categories'),
+                          items: categories
+                              .map((e) => MultiSelectItem(e, e.name!))
+                              .toList(),
+                          listType: MultiSelectListType.CHIP,
+                          onConfirm: (values) {
+                            chosenCategories.addAll(values);
+                            state.didChange(
+                                chosenCategories.length > 0 ? "changed" : null);
+                          }),
+                      state.hasError
+                          ? Text(
+                              state.errorText!,
+                              style: TextStyle(color: Colors.red, fontSize: 12),
+                            )
+                          : Container()
+                    ]),
+                    validator: (value) {
+                      if (value == null) {
+                        return 'Please choose at least one category';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
                 TextButton(
                   style: ButtonStyle(
                     foregroundColor: MaterialStateProperty.resolveWith(
@@ -198,5 +288,13 @@ class _EventCreationState extends State<EventCreationView> {
         )
       ]),
     );
+  }
+
+  Future setCurrentPosition() async {
+    final response = await determinePosition().catchError((e) {
+      return LatLong(latitude, longitude);
+    });
+    latitude = response.latitude;
+    longitude = response.longitude;
   }
 }

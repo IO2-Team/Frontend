@@ -27,9 +27,7 @@ class PanelNavigationBar extends StatelessWidget {
                 ),
                 itemBuilder: (context) => [
                   PopupMenuItem(
-                      child: TextButton(
-                          onPressed: () => context.go('/'),
-                          child: Text('Sign out')))
+                      onTap: () => context.go('/'), child: Text('Sign out'))
                 ],
               ),
             ],

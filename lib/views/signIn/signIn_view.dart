@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:webfrontend_dionizos/views/home/home_navigation_bar.dart';
 import 'package:webfrontend_dionizos/views/signIn/singIn_form.dart';
+import 'package:webfrontend_dionizos/views/signUp/singUp_form.dart';
+import 'package:webfrontend_dionizos/widgets/centered_view.dart';
 
 class SignInView extends StatelessWidget {
   const SignInView();
@@ -8,12 +11,15 @@ class SignInView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[200],
-      body: const Center(
-        child: SizedBox(
-          width: 600,
-          child: Card(
-            child: SignInForm(),
-          ),
+      body: CenteredView(
+        child: Column(
+          children: <Widget>[
+            HomeNavigationBar(),
+            SizedBox(
+              height: 40,
+            ),
+            SignInForm(),
+          ],
         ),
       ),
     );

@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:multi_select_flutter/multi_select_flutter.dart';
+import 'package:open_street_map_search_and_pick/open_street_map_search_and_pick.dart';
 import 'package:openapi/openapi.dart';
 import 'package:provider/provider.dart';
+import 'package:webfrontend_dionizos/api/Locaction/get_current_location.dart';
+import 'package:webfrontend_dionizos/api/categories_controller.dart';
 import 'package:webfrontend_dionizos/api/events_controller.dart';
 import 'package:webfrontend_dionizos/views/organizer_panel/panel_navigation_bar.dart';
 import 'package:webfrontend_dionizos/widgets/centered_view.dart';
@@ -22,10 +26,19 @@ class _EventDetailsState extends State<EventDetailsView> {
   final _freePlacesNumberController = TextEditingController();
   final _startDateTextController = TextEditingController();
   final _endDateTextController = TextEditingController();
+  final _locationTextController = TextEditingController();
+  final _categoriesTextController = TextEditingController();
+  late double latitude = 52.14;
+  late double longitude = 21.01;
+  List<Category> categories = [];
+  List<Category> chosenCategories = [];
 
   @override
   Widget build(BuildContext context) {
     EventsController eventsController = context.watch<EventsController>();
+    CategoriesController categoriesController =
+        context.watch<CategoriesController>();
+    setCurrentPosition();
     return Scaffold(
       backgroundColor: Colors.white,
       body: CenteredView(
@@ -35,14 +48,16 @@ class _EventDetailsState extends State<EventDetailsView> {
             SizedBox(
               height: 40,
             ),
-            eventDetails(eventsController.selectedEvent),
+            eventDetails(eventsController.selectedEvent,
+                categoriesController.categoriesList),
           ],
         ),
       ),
     );
   }
 
-  Widget eventDetails(Event event) {
+  Widget eventDetails(Event event, List<Category> categories) {
+    chosenCategories = eventCategories(event);
     _titleTextController.text = event.title!;
     _nameTextController.text = event.name!;
     _freePlacesNumberController.text = event.freePlace.toString();
@@ -179,6 +194,86 @@ class _EventDetailsState extends State<EventDetailsView> {
                       },
                     ),
                   ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextFormField(
+                      readOnly: true,
+                      controller: _locationTextController,
+                      decoration: const InputDecoration(
+                          icon: Icon(Icons.calendar_today_rounded),
+                          border: OutlineInputBorder(),
+                          hintText: 'Enter location'),
+                      onTap: () async {
+                        await showDialog(
+                            context: context,
+                            builder: ((context) {
+                              return Dialog(
+                                child: OpenStreetMapSearchAndPick(
+                                    center: LatLong(latitude, longitude),
+                                    onPicked: (pickedData) {
+                                      _locationTextController.text =
+                                          pickedData.address;
+                                      longitude = pickedData.latLong.longitude;
+                                      latitude = pickedData.latLong.latitude;
+                                      Navigator.pop(context);
+                                    }),
+                              );
+                            }));
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter location';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: FormField(
+                      builder: (FormFieldState state) => Column(children: [
+                        MultiSelectDialogField(
+                          chipDisplay: MultiSelectChipDisplay(
+                            items: categories
+                                .map((e) => MultiSelectItem(e, e.name!))
+                                .toList(),
+                            chipColor: Colors.green,
+                            textStyle: TextStyle(color: Colors.white),
+                          ),
+                          buttonIcon: Icon(Icons.category),
+                          buttonText: Text('Choose categories'),
+                          initialValue: chosenCategories,
+                          items: categories
+                              .map((e) => MultiSelectItem(e, e.name!))
+                              .toList(),
+                          listType: MultiSelectListType.CHIP,
+                          onConfirm: (values) {
+                            chosenCategories = values;
+                            state.didChange(
+                                chosenCategories.length > 0 ? "changed" : null);
+                          },
+                          onSelectionChanged: (values) {
+                            chosenCategories = values;
+                            state.didChange(
+                                chosenCategories.length > 0 ? "changed" : null);
+                          },
+                        ),
+                        state.hasError
+                            ? Text(
+                                state.errorText!,
+                                style:
+                                    TextStyle(color: Colors.red, fontSize: 12),
+                              )
+                            : Container()
+                      ]),
+                      validator: (value) {
+                        if (value == null) {
+                          return 'Please choose at least one category';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -238,5 +333,20 @@ class _EventDetailsState extends State<EventDetailsView> {
         ],
       ),
     );
+  }
+
+  List<Category> eventCategories(Event event) {
+    if (event.categories == null) {
+      return List<Category>.empty();
+    }
+    return event.categories!.toList();
+  }
+
+  Future setCurrentPosition() async {
+    final response = await determinePosition().catchError((e) {
+      return LatLong(latitude, longitude);
+    });
+    latitude = response.latitude;
+    longitude = response.longitude;
   }
 }

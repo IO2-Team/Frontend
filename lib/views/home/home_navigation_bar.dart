@@ -13,11 +13,14 @@ class HomeNavigationBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          GradientText(
-            'Dionizos',
-            style: TextStyle(fontSize: 35),
-            gradient: LinearGradient(
-              colors: [Colors.green.shade400, Colors.green.shade900],
+          TextButton(
+            onPressed: () => context.go('/'),
+            child: GradientText(
+              'Dionizos',
+              style: TextStyle(fontSize: 35),
+              gradient: LinearGradient(
+                colors: [Colors.green.shade400, Colors.green.shade900],
+              ),
             ),
           ),
           Row(

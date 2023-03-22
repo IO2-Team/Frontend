@@ -54,6 +54,8 @@ class EventsController extends ChangeNotifier {
         freePlace: freePlace,
         startTime: startTime.millisecondsSinceEpoch,
         endTime: endTime.millisecondsSinceEpoch,
+        longitude: "0",
+        latitude: "0",
         categories: BuiltList<int>.from(categories));
   }
 
