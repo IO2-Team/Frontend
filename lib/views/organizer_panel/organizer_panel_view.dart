@@ -56,10 +56,19 @@ class OrganizerPanelView extends StatelessWidget {
 
 Widget eventsList(EventsController eventsController) {
   if (eventsController.loading == true) {
-    return Center(
+    return Expanded(
+        child: Center(
       child: Container(
         padding: const EdgeInsets.all(20.0),
         child: CircularProgressIndicator(),
+      ),
+    ));
+  }
+  if (eventsController.eventsList.isEmpty) {
+    return Center(
+      child: Text(
+        "You have no events yet. Click Add event to create your first event",
+        style: TextStyle(fontSize: 20),
       ),
     );
   }

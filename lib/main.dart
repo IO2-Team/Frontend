@@ -75,6 +75,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<APIProvider>(create: (_) => APIProvider()),
         ChangeNotifierProvider(create: (_) => EventsController()),
         ChangeNotifierProvider(create: (_) => CategoriesController()),
+        ChangeNotifierProvider(create: (_) => OrganizerController())
       ],
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,

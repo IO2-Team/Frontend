@@ -31,7 +31,9 @@ class _EventCreationState extends State<EventCreationView> {
   final _nameTextController = TextEditingController();
   final _freePlacesNumberController = TextEditingController();
   final _startDateTextController = TextEditingController();
+  late DateTime _startDate;
   final _endDateTextController = TextEditingController();
+  late DateTime _endDate;
   final _locationTextController = TextEditingController();
   final _categoriesTextController = TextEditingController();
   late double latitude = 52.14;
@@ -43,6 +45,7 @@ class _EventCreationState extends State<EventCreationView> {
   Widget build(BuildContext context) {
     CategoriesController categoriesController =
         context.watch<CategoriesController>();
+    EventsController eventsController = context.watch<EventsController>();
     setCurrentPosition();
     return Scaffold(
       backgroundColor: Colors.white,
@@ -54,14 +57,16 @@ class _EventCreationState extends State<EventCreationView> {
             SizedBox(
               height: 40,
             ),
-            eventCreation(categoriesController.categoriesList),
+            eventCreation(
+                eventsController, categoriesController.categoriesList),
           ],
         ),
       ),
     );
   }
 
-  Widget eventCreation(List<Category> categories) {
+  Widget eventCreation(
+      EventsController eventsController, List<Category> categories) {
     return Expanded(
       child: ListView(children: [
         Form(
@@ -135,11 +140,12 @@ class _EventCreationState extends State<EventCreationView> {
                     onTap: () async {
                       DateTime? pickedStartDate = await showDatePicker(
                           context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime.now(),
+                          initialDate: (DateTime.now().add(Duration(days: 1))),
+                          firstDate: (DateTime.now().add(Duration(days: 1))),
                           lastDate: DateTime(2100));
 
                       if (pickedStartDate != null) {
+                        _startDate = pickedStartDate;
                         setState(() {
                           _startDateTextController.text =
                               DateFormat('yyyy-MM-dd').format(pickedStartDate);
@@ -166,10 +172,11 @@ class _EventCreationState extends State<EventCreationView> {
                     onTap: () async {
                       DateTime? pickedEndDate = await showDatePicker(
                           context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime.now(),
+                          initialDate: (DateTime.now().add(Duration(days: 1))),
+                          firstDate: (DateTime.now().add(Duration(days: 1))),
                           lastDate: DateTime(2100));
                       if (pickedEndDate != null) {
+                        _endDate = pickedEndDate;
                         setState(() {
                           _endDateTextController.text =
                               DateFormat('yyyy-MM-dd').format(pickedEndDate);
@@ -280,6 +287,15 @@ class _EventCreationState extends State<EventCreationView> {
                       ),
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
+                          eventsController.addEvent(
+                              title: _titleTextController.text,
+                              name: _nameTextController.text,
+                              freePlace:
+                                  int.parse(_freePlacesNumberController.text),
+                              startTime: _startDate,
+                              endTime: _endDate,
+                              categories:
+                                  chosenCategories.map((e) => e.id!).toList());
                           context.go('/organizerPanel');
                         }
                       },
