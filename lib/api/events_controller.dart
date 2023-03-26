@@ -33,7 +33,8 @@ class EventsController extends ChangeNotifier {
 
   getEvents(String sessionToken) async {
     setLoading(true);
-    final eventsResponse = await api.getMyEvents(sessionToken: sessionToken);
+    //final eventsResponse = await api.getMyEvents(sessionToken: sessionToken);
+    final eventsResponse = await api.getEvents();
     setEventsList(eventsResponse.data!.asList());
     setLoading(false);
   }
