@@ -1,3 +1,6 @@
+.vscode/
+
+
 # dll was too big
 *.dll
 # Miscellaneous
