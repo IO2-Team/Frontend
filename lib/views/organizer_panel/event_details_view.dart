@@ -200,7 +200,7 @@ class _EventDetailsState extends State<EventDetailsView> {
                       readOnly: true,
                       controller: _locationTextController,
                       decoration: const InputDecoration(
-                          icon: Icon(Icons.calendar_today_rounded),
+                          icon: Icon(Icons.location_on_outlined),
                           border: OutlineInputBorder(),
                           hintText: 'Enter location'),
                       onTap: () async {
@@ -318,9 +318,7 @@ class _EventDetailsState extends State<EventDetailsView> {
                           }),
                         ),
                         onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            context.go('/organizerPanel');
-                          }
+                          context.go('/organizerPanel');
                         },
                         child: const Text('Cancel'),
                       ),

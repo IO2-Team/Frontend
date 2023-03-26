@@ -2,10 +2,13 @@ import 'package:built_collection/built_collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:openapi/openapi.dart';
 import 'package:dio/dio.dart';
+import 'dart:html';
+
+import 'package:webfrontend_dionizos/api/session_token.dart';
 
 class EventsController extends ChangeNotifier {
   EventsController() {
-    getEvents("placeholder");
+    getEvents();
   }
 
   EventApi api = Openapi(
@@ -17,6 +20,7 @@ class EventsController extends ChangeNotifier {
   bool _loading = false;
   List<Event> _events = [];
   Event? _selectedEvent;
+  SessionTokenContoller _sessionTokenController = SessionTokenContoller();
 
   bool get loading => _loading;
   List<Event> get eventsList => _events;
@@ -31,8 +35,9 @@ class EventsController extends ChangeNotifier {
     _events = events;
   }
 
-  getEvents(String sessionToken) async {
+  getEvents() async {
     setLoading(true);
+    String token = await _sessionTokenController.get();
     //final eventsResponse = await api.getMyEvents(sessionToken: sessionToken);
     final eventsResponse = await api.getEvents();
     setEventsList(eventsResponse.data!.asList());
@@ -40,16 +45,16 @@ class EventsController extends ChangeNotifier {
   }
 
   addEvent(
-      {required String sessionToken,
-      required String title,
+      {required String title,
       required String name,
       required int freePlace,
       required DateTime startTime,
       required DateTime endTime,
       required List<int> categories,
       String? placeSchema}) async {
+    String token = await _sessionTokenController.get();
     api.addEvent(
-        sessionToken: sessionToken,
+        sessionToken: token,
         title: title,
         name: name,
         freePlace: freePlace,
@@ -65,7 +70,7 @@ class EventsController extends ChangeNotifier {
   }
 
   modifyEvent(Event event) async {
-    api.patchEvent(
-        sessionToken: "assdfsa", id: event.id.toString(), event: event);
+    String token = await _sessionTokenController.get();
+    api.patchEvent(sessionToken: token, id: event.id.toString(), event: event);
   }
 }

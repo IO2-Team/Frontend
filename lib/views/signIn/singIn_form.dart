@@ -1,8 +1,8 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:webfrontend_dionizos/api/organizer_controller.dart';
 
 class SignInForm extends StatefulWidget {
   const SignInForm();
@@ -75,7 +75,7 @@ class _SignUpFormState extends State<SignInForm> {
                             foregroundColor: Colors.white,
                             backgroundColor: Colors.green,
                             padding: EdgeInsets.all(15)),
-                        onPressed: () {
+                        onPressed: () async {
                           if (_formKey.currentState!.validate()) {
                             context.go('/organizerPanel');
                           }

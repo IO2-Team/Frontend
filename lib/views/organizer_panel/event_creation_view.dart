@@ -194,7 +194,7 @@ class _EventCreationState extends State<EventCreationView> {
                     readOnly: true,
                     controller: _locationTextController,
                     decoration: const InputDecoration(
-                        icon: Icon(Icons.calendar_today_rounded),
+                        icon: Icon(Icons.location_on_outlined),
                         border: OutlineInputBorder(),
                         hintText: 'Enter location'),
                     onTap: () async {
@@ -260,28 +260,56 @@ class _EventCreationState extends State<EventCreationView> {
                     },
                   ),
                 ),
-                TextButton(
-                  style: ButtonStyle(
-                    foregroundColor: MaterialStateProperty.resolveWith(
-                        (Set<MaterialState> states) {
-                      return states.contains(MaterialState.disabled)
-                          ? null
-                          : Colors.white;
-                    }),
-                    backgroundColor: MaterialStateProperty.resolveWith(
-                        (Set<MaterialState> states) {
-                      return states.contains(MaterialState.disabled)
-                          ? null
-                          : Colors.green;
-                    }),
-                  ),
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      context.go('/organizerPanel');
-                    }
-                  },
-                  child: const Text('Add Event'),
-                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      style: ButtonStyle(
+                        foregroundColor: MaterialStateProperty.resolveWith(
+                            (Set<MaterialState> states) {
+                          return states.contains(MaterialState.disabled)
+                              ? null
+                              : Colors.white;
+                        }),
+                        backgroundColor: MaterialStateProperty.resolveWith(
+                            (Set<MaterialState> states) {
+                          return states.contains(MaterialState.disabled)
+                              ? null
+                              : Colors.green;
+                        }),
+                      ),
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          context.go('/organizerPanel');
+                        }
+                      },
+                      child: const Text('Add event'),
+                    ),
+                    SizedBox(
+                      width: 20,
+                    ),
+                    TextButton(
+                      style: ButtonStyle(
+                        foregroundColor: MaterialStateProperty.resolveWith(
+                            (Set<MaterialState> states) {
+                          return states.contains(MaterialState.disabled)
+                              ? null
+                              : Colors.white;
+                        }),
+                        backgroundColor: MaterialStateProperty.resolveWith(
+                            (Set<MaterialState> states) {
+                          return states.contains(MaterialState.disabled)
+                              ? null
+                              : Colors.red;
+                        }),
+                      ),
+                      onPressed: () {
+                        context.go('/organizerPanel');
+                      },
+                      child: const Text('Cancel'),
+                    ),
+                  ],
+                )
               ],
             ),
           ),
