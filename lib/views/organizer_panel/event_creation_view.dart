@@ -231,40 +231,47 @@ class _EventCreationState extends State<EventCreationView> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: FormField(
-                    builder: (FormFieldState state) => Column(children: [
-                      MultiSelectDialogField(
-                          chipDisplay: MultiSelectChipDisplay(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(),
+                    ),
+                    child: FormField(
+                      builder: (FormFieldState state) => Column(children: [
+                        MultiSelectDialogField(
+                            chipDisplay: MultiSelectChipDisplay(
+                              items: categories
+                                  .map((e) => MultiSelectItem(e, e.name!))
+                                  .toList(),
+                              chipColor: Colors.green,
+                              textStyle: TextStyle(color: Colors.white),
+                            ),
+                            buttonIcon: Icon(Icons.category),
+                            buttonText: Text('Choose categories'),
                             items: categories
                                 .map((e) => MultiSelectItem(e, e.name!))
                                 .toList(),
-                            chipColor: Colors.green,
-                            textStyle: TextStyle(color: Colors.white),
-                          ),
-                          buttonIcon: Icon(Icons.category),
-                          buttonText: Text('Choose categories'),
-                          items: categories
-                              .map((e) => MultiSelectItem(e, e.name!))
-                              .toList(),
-                          listType: MultiSelectListType.CHIP,
-                          onConfirm: (values) {
-                            chosenCategories.addAll(values);
-                            state.didChange(
-                                chosenCategories.length > 0 ? "changed" : null);
-                          }),
-                      state.hasError
-                          ? Text(
-                              state.errorText!,
-                              style: TextStyle(color: Colors.red, fontSize: 12),
-                            )
-                          : Container()
-                    ]),
-                    validator: (value) {
-                      if (value == null) {
-                        return 'Please choose at least one category';
-                      }
-                      return null;
-                    },
+                            listType: MultiSelectListType.CHIP,
+                            onConfirm: (values) {
+                              chosenCategories.addAll(values);
+                              state.didChange(chosenCategories.length > 0
+                                  ? "changed"
+                                  : null);
+                            }),
+                        state.hasError
+                            ? Text(
+                                state.errorText!,
+                                style:
+                                    TextStyle(color: Colors.red, fontSize: 12),
+                              )
+                            : Container()
+                      ]),
+                      validator: (value) {
+                        if (value == null) {
+                          return 'Please choose at least one category';
+                        }
+                        return null;
+                      },
+                    ),
                   ),
                 ),
                 Row(

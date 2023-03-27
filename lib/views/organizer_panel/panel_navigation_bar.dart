@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:webfrontend_dionizos/api/organizer_controller.dart';
+import 'package:webfrontend_dionizos/api/storage_controllers.dart';
 import 'package:webfrontend_dionizos/widgets/dionizos_logo.dart';
 import 'dart:ui' as ui;
 
@@ -14,6 +15,8 @@ class PanelNavigationBar extends StatelessWidget {
   Widget build(BuildContext context) {
     OrganizerController organizerController =
         context.watch<OrganizerController>();
+    UserNameContoller userNameContoller = UserNameContoller();
+    final userName = userNameContoller.get();
     return Container(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -23,7 +26,7 @@ class PanelNavigationBar extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Text(
-                organizerController.userName,
+                userNameContoller.get(),
                 style: TextStyle(fontSize: 20),
               ),
               PopupMenuButton(

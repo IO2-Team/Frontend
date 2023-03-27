@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:openapi/openapi.dart';
 import 'package:dio/dio.dart';
-import 'package:webfrontend_dionizos/api/session_token.dart';
+import 'package:webfrontend_dionizos/api/storage_controllers.dart';
 
 class OrganizerController extends ChangeNotifier {
   EventOrganizerApi api = Openapi(
@@ -11,8 +11,7 @@ class OrganizerController extends ChangeNotifier {
       .getEventOrganizerApi();
 
   SessionTokenContoller _sessionTokenController = SessionTokenContoller();
-  String _userName = "";
-  String get userName => _userName;
+  UserNameContoller _userNameContoller = UserNameContoller();
   int? _userId;
   String get userId => _userId.toString();
   bool _isPending = true;
@@ -23,7 +22,7 @@ class OrganizerController extends ChangeNotifier {
       final logInResponse =
           await api.loginOrganizer(email: login, password: password);
       await _sessionTokenController.set(logInResponse.data!.sessionToken!);
-      _userName = login;
+      _userNameContoller.set(login);
       return true;
     } catch (e) {
       return false;

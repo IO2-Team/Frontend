@@ -2,8 +2,7 @@ import 'package:built_collection/built_collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:openapi/openapi.dart';
 import 'package:dio/dio.dart';
-
-import 'package:webfrontend_dionizos/api/session_token.dart';
+import 'package:webfrontend_dionizos/api/storage_controllers.dart';
 
 class EventsController extends ChangeNotifier {
   EventsController() {
@@ -38,7 +37,6 @@ class EventsController extends ChangeNotifier {
     setLoading(true);
     String token = await _sessionTokenController.get();
     final eventsResponse = await api.getMyEvents(sessionToken: token);
-    //final eventsResponse = await api.getEvents();
     setEventsList(eventsResponse.data!.asList());
     setLoading(false);
   }
@@ -52,9 +50,6 @@ class EventsController extends ChangeNotifier {
       required List<int> categories,
       String? placeSchema}) async {
     String token = await _sessionTokenController.get();
-    print(token);
-    print((startTime.millisecondsSinceEpoch / 1000).toInt());
-    print((endTime.millisecondsSinceEpoch / 1000).toInt());
     api.addEvent(
         sessionToken: token,
         title: title,

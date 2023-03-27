@@ -115,7 +115,6 @@ class _SignUpFormState extends State<SignInForm> {
 
   _logInFailed() {
     _isLogInFailed = true;
-    _usernameTextController.text = "";
     _passwordTextController.text = "";
     _formKey.currentState!.validate();
   }

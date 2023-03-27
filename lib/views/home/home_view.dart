@@ -15,21 +15,26 @@ class HomeView extends StatelessWidget {
             image: DecorationImage(
                 image: AssetImage("assets/images/welcome_theme.jpg"),
                 fit: BoxFit.cover)),
-        child: CenteredView(
-          child: Column(
-            children: <Widget>[
-              HomeNavigationBar(),
-              SizedBox(
-                height: 40,
-              ),
-              Expanded(
-                child: Row(
-                  children: <Widget>[
-                    HomeViewDetails(),
-                  ],
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 60),
+          alignment: Alignment.center,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: 1200),
+            child: Column(
+              children: <Widget>[
+                HomeNavigationBar(),
+                SizedBox(
+                  height: 40,
                 ),
-              )
-            ],
+                Expanded(
+                  child: Row(
+                    children: <Widget>[
+                      HomeViewDetails(),
+                    ],
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ),

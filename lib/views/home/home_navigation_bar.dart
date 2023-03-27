@@ -26,20 +26,11 @@ class HomeNavigationBar extends StatelessWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
+              HighlightButton('Sign Up', () => context.go('/signUp')),
               SizedBox(
                 width: 60,
               ),
-              HighlightButton(
-                'Sign Up'
-                ,() => context.go('/signUp')
-              ),
-              SizedBox(
-                width: 60,
-              ),
-              HighlightButton(
-                  'Sign In'
-                  ,() => context.go('/signIn')
-              ),
+              HighlightButton('Sign In', () => context.go('/signIn')),
             ],
           )
         ],
@@ -49,7 +40,7 @@ class HomeNavigationBar extends StatelessWidget {
 }
 
 class HighlightButton extends StatelessWidget {
-  HighlightButton(this.title,this.action);
+  HighlightButton(this.title, this.action);
   final String title;
   var action;
 
@@ -60,15 +51,14 @@ class HighlightButton extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20.0),
         ),
-        //TODO: moze gradient?
-        backgroundColor: Colors.green.shade300,
+        backgroundColor: Colors.green,
       ),
       onPressed: action,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
         child: Text(
           title,
-          style: TextStyle(fontSize: 22, color: Colors.white),
+          style: TextStyle(fontSize: 20, color: Colors.white),
         ),
       ),
     );
