@@ -198,7 +198,14 @@ class _SignUpFormState extends State<SignUpForm> {
           onPressed: () async {
             if (await organizerController
                 .confirmAccount(_confirmationCodeTextController.text)) {
-              context.go('/organizerPanel');
+              if (await organizerController.logIn(
+                  _emailTextController.text, _passwordTextController.text)) {
+                context.go('/organizerPanel');
+              } else {
+                _confirmationCodeTextController.text = "";
+                isWrongCode = true;
+                _formKeyAlert.currentState!.validate();
+              }
             } else {
               _confirmationCodeTextController.text = "";
               isWrongCode = true;
