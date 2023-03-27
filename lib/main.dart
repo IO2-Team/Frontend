@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:webfrontend_dionizos/api/api_provider.dart';
 import 'package:webfrontend_dionizos/api/categories_controller.dart';
 import 'package:webfrontend_dionizos/api/events_controller.dart';
+import 'package:webfrontend_dionizos/api/organizer_controller.dart';
 import 'package:webfrontend_dionizos/views/home/home_view.dart';
 import 'package:webfrontend_dionizos/views/organizer_panel/event_creation_view.dart';
 import 'package:webfrontend_dionizos/views/organizer_panel/event_details_view.dart';
@@ -73,11 +74,14 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider<APIProvider>(create: (_) => APIProvider()),
         ChangeNotifierProvider(create: (_) => EventsController()),
-        ChangeNotifierProvider(create: (_) => CategoriesController())
+        ChangeNotifierProvider(create: (_) => CategoriesController()),
+        ChangeNotifierProvider(create: (_) => OrganizerController())
       ],
       child: MaterialApp.router(
+        debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
         theme: ThemeData(
+          scaffoldBackgroundColor: Color.fromARGB(255, 248, 228, 201),
           primarySwatch: Colors.green,
           textTheme: Theme.of(context).textTheme.apply(fontFamily: 'Open Sans'),
         ),

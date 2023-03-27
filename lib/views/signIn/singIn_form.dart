@@ -1,8 +1,8 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:webfrontend_dionizos/api/organizer_controller.dart';
 
 class SignInForm extends StatefulWidget {
   const SignInForm();
@@ -17,8 +17,12 @@ class _SignUpFormState extends State<SignInForm> {
   final _usernameTextController = TextEditingController();
   final _passwordTextController = TextEditingController();
 
+  bool _isLogInFailed = false;
+
   @override
   Widget build(BuildContext context) {
+    OrganizerController organizerController =
+        context.watch<OrganizerController>();
     return Expanded(
       child: Center(
         child: ListView(
@@ -41,7 +45,9 @@ class _SignUpFormState extends State<SignInForm> {
                               border: OutlineInputBorder(),
                               hintText: 'Enter username'),
                           validator: (value) {
-                            if (value == null || value.isEmpty) {
+                            if (_isLogInFailed) {
+                              return 'Invalid email or password';
+                            } else if (value == null || value.isEmpty) {
                               return 'Please enter your username';
                             } else if (value.length < 4) {
                               return 'Username must be at least 4 characters long';
@@ -61,7 +67,9 @@ class _SignUpFormState extends State<SignInForm> {
                               border: OutlineInputBorder(),
                               hintText: 'Enter password'),
                           validator: (value) {
-                            if (value == null || value.isEmpty) {
+                            if (_isLogInFailed) {
+                              return 'Invalid email or password';
+                            } else if (value == null || value.isEmpty) {
                               return 'Please enter your password';
                             } else if (value.length < 8) {
                               return "Password have to be at least 8 characters long";
@@ -75,9 +83,16 @@ class _SignUpFormState extends State<SignInForm> {
                             foregroundColor: Colors.white,
                             backgroundColor: Colors.green,
                             padding: EdgeInsets.all(15)),
-                        onPressed: () {
+                        onPressed: () async {
+                          _isLogInFailed = false;
                           if (_formKey.currentState!.validate()) {
-                            context.go('/organizerPanel');
+                            if (await organizerController.logIn(
+                                _usernameTextController.text,
+                                _passwordTextController.text)) {
+                              context.go('/organizerPanel');
+                            } else {
+                              _logInFailed();
+                            }
                           }
                         },
                         child: const Text(
@@ -96,5 +111,11 @@ class _SignUpFormState extends State<SignInForm> {
         ),
       ),
     );
+  }
+
+  _logInFailed() {
+    _isLogInFailed = true;
+    _passwordTextController.text = "";
+    _formKey.currentState!.validate();
   }
 }

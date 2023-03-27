@@ -10,21 +10,32 @@ class HomeView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: CenteredView(
-        child: Column(
-          children: <Widget>[
-            HomeNavigationBar(),
-            SizedBox(
-              height: 40,
+      body: Container(
+        decoration: BoxDecoration(
+            image: DecorationImage(
+                image: AssetImage("assets/images/welcome_theme.jpg"),
+                fit: BoxFit.cover)),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 60),
+          alignment: Alignment.center,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: 1200),
+            child: Column(
+              children: <Widget>[
+                HomeNavigationBar(),
+                SizedBox(
+                  height: 40,
+                ),
+                Expanded(
+                  child: Row(
+                    children: <Widget>[
+                      HomeViewDetails(),
+                    ],
+                  ),
+                )
+              ],
             ),
-            Expanded(
-              child: Row(
-                children: <Widget>[
-                  HomeViewDetails(),
-                ],
-              ),
-            )
-          ],
+          ),
         ),
       ),
     );

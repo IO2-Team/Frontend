@@ -5,6 +5,13 @@ import 'package:flutter/material.dart';
 class HomeViewDetails extends StatelessWidget {
   const HomeViewDetails({Key? key}) : super(key: key);
 
+  static String welcomeText = """
+Welcome on world-fastest-growing event platform Dionizos!
+Do you organize events?
+If so, you are in best place to publish your event!
+  """;
+
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -13,18 +20,14 @@ class HomeViewDetails extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Text(
-            'Welcome',
-            style: TextStyle(
-                fontWeight: FontWeight.w800, height: 0.9, fontSize: 80),
-          ),
+
           SizedBox(
-            height: 30,
+            height: 80,
           ),
           Expanded(
             child: SingleChildScrollView(
               child: Text(
-                'Dionizos WebPanel, tutaj jakiś tekst narazie potem pewnie coś bardziej adekwatnego. \n Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec in erat tortor. Vestibulum vulputate mollis felis, et eleifend ipsum mollis et. Pellentesque turpis leo, vehicula sit amet gravida sed, auctor tristique justo. Duis facilisis orci ut leo fermentum, id ornare diam dapibus. Praesent consectetur lacus ac risus pulvinar lobortis. Praesent sed nibh non metus lacinia maximus in a urna. Quisque quis tortor at urna tempus eleifend ac sed velit. Curabitur sodales elementum arcu, ac sollicitudin risus commodo at. Integer aliquam lacus sed felis interdum, interdum porta augue bibendum. Donec sed faucibus nisi. Ut sodales dignissim lectus. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.',
+                welcomeText,
                 style: TextStyle(
                   fontSize: 21,
                   height: 1.7,

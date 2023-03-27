@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:openapi/openapi.dart';
 import 'package:provider/provider.dart';
 import 'package:webfrontend_dionizos/api/api_provider.dart';
+import 'package:webfrontend_dionizos/api/organizer_controller.dart';
 
 class SignUpForm extends StatefulWidget {
   const SignUpForm();
@@ -21,8 +22,14 @@ class _SignUpFormState extends State<SignUpForm> {
   final _emailTextController = TextEditingController();
   final _passwordTextController = TextEditingController();
 
+  final _confirmationCodeTextController = TextEditingController();
+
+  bool _emailUsed = false;
+
   @override
   Widget build(BuildContext context) {
+    OrganizerController organizerController =
+        context.watch<OrganizerController>();
     return Expanded(
       child: Center(
         child: ListView(
@@ -63,7 +70,9 @@ class _SignUpFormState extends State<SignUpForm> {
                               border: OutlineInputBorder(),
                               hintText: 'Enter email address'),
                           validator: (value) {
-                            if (value == null || value.isEmpty) {
+                            if (_emailUsed) {
+                              return "There already is account with this email address";
+                            } else if (value == null || value.isEmpty) {
                               return 'Please enter your email address';
                             } else if (!EmailValidator.validate(value, true)) {
                               return 'Email is incorrect';
@@ -118,9 +127,22 @@ class _SignUpFormState extends State<SignUpForm> {
                             foregroundColor: Colors.white,
                             backgroundColor: Colors.green,
                             padding: EdgeInsets.all(15)),
-                        onPressed: () {
+                        onPressed: () async {
                           if (_formKey.currentState!.validate()) {
-                            context.go('/organizerPanel');
+                            if (await organizerController.signUp(
+                                _usernameTextController.text,
+                                _emailTextController.text,
+                                _passwordTextController.text)) {
+                              showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return _confirmationDialog(
+                                        organizerController);
+                                  });
+                            } else {
+                              _emailUsed = true;
+                              _formKey.currentState!.validate();
+                            }
                           }
                         },
                         child: const Text(
@@ -136,6 +158,62 @@ class _SignUpFormState extends State<SignUpForm> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _confirmationDialog(OrganizerController organizerController) {
+    final _formKeyAlert = GlobalKey<FormState>();
+    bool isWrongCode = false;
+    return AlertDialog(
+      title: Text('Confirm account'),
+      content: Form(
+        key: _formKeyAlert,
+        child: TextFormField(
+          controller: _confirmationCodeTextController,
+          decoration:
+              const InputDecoration(hintText: 'Enter confirmation code'),
+          validator: (value) {
+            if (isWrongCode) {
+              return "Incorrect confirmation code";
+            } else if (value == null || value.isEmpty) {
+              return 'Please enter your confirmation code';
+            }
+            return null;
+          },
+        ),
+      ),
+      actions: <Widget>[
+        MaterialButton(
+          color: Colors.red,
+          textColor: Colors.white,
+          child: Text('Cancel'),
+          onPressed: () async {
+            context.pop();
+          },
+        ),
+        MaterialButton(
+          color: Colors.green,
+          textColor: Colors.white,
+          child: Text('OK'),
+          onPressed: () async {
+            if (await organizerController
+                .confirmAccount(_confirmationCodeTextController.text)) {
+              if (await organizerController.logIn(
+                  _emailTextController.text, _passwordTextController.text)) {
+                context.go('/organizerPanel');
+              } else {
+                _confirmationCodeTextController.text = "";
+                isWrongCode = true;
+                _formKeyAlert.currentState!.validate();
+              }
+            } else {
+              _confirmationCodeTextController.text = "";
+              isWrongCode = true;
+              _formKeyAlert.currentState!.validate();
+            }
+          },
+        ),
+      ],
     );
   }
 }

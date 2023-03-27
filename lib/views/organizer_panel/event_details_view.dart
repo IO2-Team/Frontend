@@ -139,8 +139,9 @@ class _EventDetailsState extends State<EventDetailsView> {
                       onTap: () async {
                         DateTime? pickedStartDate = await showDatePicker(
                             context: context,
-                            initialDate: DateTime.now(),
-                            firstDate: DateTime.now(),
+                            initialDate:
+                                (DateTime.now().add(Duration(days: 1))),
+                            firstDate: (DateTime.now().add(Duration(days: 1))),
                             lastDate: DateTime(2100));
 
                         if (pickedStartDate != null) {
@@ -171,8 +172,9 @@ class _EventDetailsState extends State<EventDetailsView> {
                       onTap: () async {
                         DateTime? pickedEndDate = await showDatePicker(
                             context: context,
-                            initialDate: DateTime.now(),
-                            firstDate: DateTime.now(),
+                            initialDate:
+                                (DateTime.now().add(Duration(days: 1))),
+                            firstDate: (DateTime.now().add(Duration(days: 1))),
                             lastDate: DateTime(2100));
                         if (pickedEndDate != null) {
                           setState(() {
@@ -200,7 +202,7 @@ class _EventDetailsState extends State<EventDetailsView> {
                       readOnly: true,
                       controller: _locationTextController,
                       decoration: const InputDecoration(
-                          icon: Icon(Icons.calendar_today_rounded),
+                          icon: Icon(Icons.location_on_outlined),
                           border: OutlineInputBorder(),
                           hintText: 'Enter location'),
                       onTap: () async {
@@ -318,9 +320,7 @@ class _EventDetailsState extends State<EventDetailsView> {
                           }),
                         ),
                         onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            context.go('/organizerPanel');
-                          }
+                          context.go('/organizerPanel');
                         },
                         child: const Text('Cancel'),
                       ),

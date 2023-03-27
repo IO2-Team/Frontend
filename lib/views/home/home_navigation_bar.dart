@@ -26,20 +26,11 @@ class HomeNavigationBar extends StatelessWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
+              HighlightButton('Sign Up', () => context.go('/signUp')),
               SizedBox(
                 width: 60,
               ),
-              TextButton(
-                onPressed: () => context.go('/signUp'),
-                child: _NavBarItem('Sign Up'),
-              ),
-              SizedBox(
-                width: 60,
-              ),
-              TextButton(
-                onPressed: () => context.go('/signIn'),
-                child: _NavBarItem('Sign In'),
-              ),
+              HighlightButton('Sign In', () => context.go('/signIn')),
             ],
           )
         ],
@@ -48,15 +39,28 @@ class HomeNavigationBar extends StatelessWidget {
   }
 }
 
-class _NavBarItem extends StatelessWidget {
+class HighlightButton extends StatelessWidget {
+  HighlightButton(this.title, this.action);
   final String title;
-  const _NavBarItem(this.title);
+  var action;
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      title,
-      style: TextStyle(fontSize: 18, color: Colors.green.shade500),
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.0),
+        ),
+        backgroundColor: Colors.green,
+      ),
+      onPressed: action,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+        child: Text(
+          title,
+          style: TextStyle(fontSize: 20, color: Colors.white),
+        ),
+      ),
     );
   }
 }

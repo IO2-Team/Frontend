@@ -31,7 +31,9 @@ class _EventCreationState extends State<EventCreationView> {
   final _nameTextController = TextEditingController();
   final _freePlacesNumberController = TextEditingController();
   final _startDateTextController = TextEditingController();
+  late DateTime _startDate;
   final _endDateTextController = TextEditingController();
+  late DateTime _endDate;
   final _locationTextController = TextEditingController();
   final _categoriesTextController = TextEditingController();
   late double latitude = 52.14;
@@ -43,6 +45,7 @@ class _EventCreationState extends State<EventCreationView> {
   Widget build(BuildContext context) {
     CategoriesController categoriesController =
         context.watch<CategoriesController>();
+    EventsController eventsController = context.watch<EventsController>();
     setCurrentPosition();
     return Scaffold(
       backgroundColor: Colors.white,
@@ -54,14 +57,16 @@ class _EventCreationState extends State<EventCreationView> {
             SizedBox(
               height: 40,
             ),
-            eventCreation(categoriesController.categoriesList),
+            eventCreation(
+                eventsController, categoriesController.categoriesList),
           ],
         ),
       ),
     );
   }
 
-  Widget eventCreation(List<Category> categories) {
+  Widget eventCreation(
+      EventsController eventsController, List<Category> categories) {
     return Expanded(
       child: ListView(children: [
         Form(
@@ -135,11 +140,12 @@ class _EventCreationState extends State<EventCreationView> {
                     onTap: () async {
                       DateTime? pickedStartDate = await showDatePicker(
                           context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime.now(),
+                          initialDate: (DateTime.now().add(Duration(days: 1))),
+                          firstDate: (DateTime.now().add(Duration(days: 1))),
                           lastDate: DateTime(2100));
 
                       if (pickedStartDate != null) {
+                        _startDate = pickedStartDate;
                         setState(() {
                           _startDateTextController.text =
                               DateFormat('yyyy-MM-dd').format(pickedStartDate);
@@ -166,10 +172,11 @@ class _EventCreationState extends State<EventCreationView> {
                     onTap: () async {
                       DateTime? pickedEndDate = await showDatePicker(
                           context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime.now(),
+                          initialDate: (DateTime.now().add(Duration(days: 1))),
+                          firstDate: (DateTime.now().add(Duration(days: 1))),
                           lastDate: DateTime(2100));
                       if (pickedEndDate != null) {
+                        _endDate = pickedEndDate;
                         setState(() {
                           _endDateTextController.text =
                               DateFormat('yyyy-MM-dd').format(pickedEndDate);
@@ -194,7 +201,7 @@ class _EventCreationState extends State<EventCreationView> {
                     readOnly: true,
                     controller: _locationTextController,
                     decoration: const InputDecoration(
-                        icon: Icon(Icons.calendar_today_rounded),
+                        icon: Icon(Icons.location_on_outlined),
                         border: OutlineInputBorder(),
                         hintText: 'Enter location'),
                     onTap: () async {
@@ -224,64 +231,108 @@ class _EventCreationState extends State<EventCreationView> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: FormField(
-                    builder: (FormFieldState state) => Column(children: [
-                      MultiSelectDialogField(
-                          chipDisplay: MultiSelectChipDisplay(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(),
+                    ),
+                    child: FormField(
+                      builder: (FormFieldState state) => Column(children: [
+                        MultiSelectDialogField(
+                            chipDisplay: MultiSelectChipDisplay(
+                              items: categories
+                                  .map((e) => MultiSelectItem(e, e.name!))
+                                  .toList(),
+                              chipColor: Colors.green,
+                              textStyle: TextStyle(color: Colors.white),
+                            ),
+                            buttonIcon: Icon(Icons.category),
+                            buttonText: Text('Choose categories'),
                             items: categories
                                 .map((e) => MultiSelectItem(e, e.name!))
                                 .toList(),
-                            chipColor: Colors.green,
-                            textStyle: TextStyle(color: Colors.white),
-                          ),
-                          buttonIcon: Icon(Icons.category),
-                          buttonText: Text('Choose categories'),
-                          items: categories
-                              .map((e) => MultiSelectItem(e, e.name!))
-                              .toList(),
-                          listType: MultiSelectListType.CHIP,
-                          onConfirm: (values) {
-                            chosenCategories.addAll(values);
-                            state.didChange(
-                                chosenCategories.length > 0 ? "changed" : null);
-                          }),
-                      state.hasError
-                          ? Text(
-                              state.errorText!,
-                              style: TextStyle(color: Colors.red, fontSize: 12),
-                            )
-                          : Container()
-                    ]),
-                    validator: (value) {
-                      if (value == null) {
-                        return 'Please choose at least one category';
-                      }
-                      return null;
-                    },
+                            listType: MultiSelectListType.CHIP,
+                            onConfirm: (values) {
+                              chosenCategories.addAll(values);
+                              state.didChange(chosenCategories.length > 0
+                                  ? "changed"
+                                  : null);
+                            }),
+                        state.hasError
+                            ? Text(
+                                state.errorText!,
+                                style:
+                                    TextStyle(color: Colors.red, fontSize: 12),
+                              )
+                            : Container()
+                      ]),
+                      validator: (value) {
+                        if (value == null) {
+                          return 'Please choose at least one category';
+                        }
+                        return null;
+                      },
+                    ),
                   ),
                 ),
-                TextButton(
-                  style: ButtonStyle(
-                    foregroundColor: MaterialStateProperty.resolveWith(
-                        (Set<MaterialState> states) {
-                      return states.contains(MaterialState.disabled)
-                          ? null
-                          : Colors.white;
-                    }),
-                    backgroundColor: MaterialStateProperty.resolveWith(
-                        (Set<MaterialState> states) {
-                      return states.contains(MaterialState.disabled)
-                          ? null
-                          : Colors.green;
-                    }),
-                  ),
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      context.go('/organizerPanel');
-                    }
-                  },
-                  child: const Text('Add Event'),
-                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      style: ButtonStyle(
+                        foregroundColor: MaterialStateProperty.resolveWith(
+                            (Set<MaterialState> states) {
+                          return states.contains(MaterialState.disabled)
+                              ? null
+                              : Colors.white;
+                        }),
+                        backgroundColor: MaterialStateProperty.resolveWith(
+                            (Set<MaterialState> states) {
+                          return states.contains(MaterialState.disabled)
+                              ? null
+                              : Colors.green;
+                        }),
+                      ),
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          eventsController.addEvent(
+                              title: _titleTextController.text,
+                              name: _nameTextController.text,
+                              freePlace:
+                                  int.parse(_freePlacesNumberController.text),
+                              startTime: _startDate,
+                              endTime: _endDate,
+                              categories:
+                                  chosenCategories.map((e) => e.id!).toList());
+                          context.go('/organizerPanel');
+                        }
+                      },
+                      child: const Text('Add event'),
+                    ),
+                    SizedBox(
+                      width: 20,
+                    ),
+                    TextButton(
+                      style: ButtonStyle(
+                        foregroundColor: MaterialStateProperty.resolveWith(
+                            (Set<MaterialState> states) {
+                          return states.contains(MaterialState.disabled)
+                              ? null
+                              : Colors.white;
+                        }),
+                        backgroundColor: MaterialStateProperty.resolveWith(
+                            (Set<MaterialState> states) {
+                          return states.contains(MaterialState.disabled)
+                              ? null
+                              : Colors.red;
+                        }),
+                      ),
+                      onPressed: () {
+                        context.go('/organizerPanel');
+                      },
+                      child: const Text('Cancel'),
+                    ),
+                  ],
+                )
               ],
             ),
           ),
