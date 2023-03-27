@@ -86,12 +86,6 @@ class MyApp extends StatelessWidget {
           textTheme: Theme.of(context).textTheme.apply(fontFamily: 'Open Sans'),
         ),
         routerConfig: _router,
-        // home: MyHomePage(
-        //     title: 'Flutter Demo Home Page',
-        //     api: Openapi(
-        //         dio: Dio(BaseOptions(
-        //             baseUrl: 'https://dionizos-backend-app.azurewebsites.net')),
-        //         serializers: standardSerializers)),
       ),
     );
   }

@@ -67,7 +67,7 @@ Widget eventsList(EventsController eventsController) {
   if (eventsController.eventsList.isEmpty) {
     return Center(
       child: Text(
-        "You have no events yet. Click Add event to create your first event",
+        "You have no events yet. Click Create new Event to create your first event",
         style: TextStyle(fontSize: 20),
       ),
     );
