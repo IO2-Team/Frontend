@@ -77,7 +77,7 @@ Widget eventsList(EventsController eventsController) {
         itemCount: eventsController.eventsList.length,
         separatorBuilder: (context, index) => Divider(),
         itemBuilder: ((context, index) {
-          Event event = eventsController.eventsList[index];
+          EventModel event = eventsController.eventsList[index];
           return EventsListItem(
             event: event,
             onTap: () {

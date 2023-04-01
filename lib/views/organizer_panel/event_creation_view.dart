@@ -15,9 +15,9 @@ import 'package:webfrontend_dionizos/api/events_controller.dart';
 import 'package:webfrontend_dionizos/views/organizer_panel/panel_navigation_bar.dart';
 import 'package:webfrontend_dionizos/widgets/centered_view.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:open_street_map_search_and_pick/open_street_map_search_and_pick.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:open_street_map_search_and_pick/open_street_map_search_and_pick.dart';
 
 class EventCreationView extends StatefulWidget {
   @override
@@ -301,8 +301,9 @@ class _EventCreationState extends State<EventCreationView> {
                                   int.parse(_freePlacesNumberController.text),
                               startTime: _startDate,
                               endTime: _endDate,
-                              categories:
-                                  chosenCategories.map((e) => e.id!).toList());
+                              latitude: latitude,
+                              longitude: longitude,
+                              categories: chosenCategories);
                           context.go('/organizerPanel');
                         }
                       },

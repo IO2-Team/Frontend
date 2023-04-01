@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -56,15 +58,16 @@ class _EventDetailsState extends State<EventDetailsView> {
     );
   }
 
-  Widget eventDetails(Event event, List<Category> categories) {
+  Widget eventDetails(EventModel event, List<Category> categories) {
     chosenCategories = eventCategories(event);
-    _titleTextController.text = event.title!;
-    _nameTextController.text = event.name!;
+    _titleTextController.text = event.title;
+    _nameTextController.text = event.name;
     _freePlacesNumberController.text = event.freePlace.toString();
-    _startDateTextController.text = DateFormat('yyyy-MM-dd')
-        .format(DateTime.fromMillisecondsSinceEpoch(event.startTime!));
-    _endDateTextController.text = DateFormat('yyyy-MM-dd')
-        .format(DateTime.fromMillisecondsSinceEpoch(event.endTime!));
+    _startDateTextController.text =
+        DateFormat('yyyy-MM-dd').format(event.startTime);
+    _endDateTextController.text =
+        DateFormat('yyyy-MM-dd').format(event.endTime);
+    _locationTextController.text = event.addressName;
     return Expanded(
       child: ListView(
         children: [
@@ -335,11 +338,11 @@ class _EventDetailsState extends State<EventDetailsView> {
     );
   }
 
-  List<Category> eventCategories(Event event) {
+  List<Category> eventCategories(EventModel event) {
     if (event.categories == null) {
       return List<Category>.empty();
     }
-    return event.categories!.toList();
+    return event.categories.toList();
   }
 
   Future setCurrentPosition() async {
