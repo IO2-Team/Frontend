@@ -43,14 +43,12 @@ class _SignUpFormState extends State<SignInForm> {
                           decoration: const InputDecoration(
                               icon: Icon(Icons.person),
                               border: OutlineInputBorder(),
-                              hintText: 'Enter username'),
+                              hintText: 'Enter email address'),
                           validator: (value) {
                             if (_isLogInFailed) {
                               return 'Invalid email or password';
                             } else if (value == null || value.isEmpty) {
-                              return 'Please enter your username';
-                            } else if (value.length < 4) {
-                              return 'Username must be at least 4 characters long';
+                              return 'Please enter your email';
                             }
                             return null;
                           },

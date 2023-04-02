@@ -29,7 +29,11 @@ class _EventDetailsState extends State<EventDetailsView> {
   final _nameTextController = TextEditingController();
   final _freePlacesNumberController = TextEditingController();
   final _startDateTextController = TextEditingController();
+  late DateTime _startDate;
+  late TimeOfDay _startTime;
   final _endDateTextController = TextEditingController();
+  late DateTime _endDate;
+  late TimeOfDay _endTime;
   final _locationTextController = TextEditingController();
   final _categoriesTextController = TextEditingController();
   late double latitude = 52.14;
@@ -79,9 +83,9 @@ class _EventDetailsState extends State<EventDetailsView> {
             _nameTextController.text = event.name;
             _freePlacesNumberController.text = event.freePlace.toString();
             _startDateTextController.text =
-                DateFormat('yyyy-MM-dd').format(event.startTime);
+                DateFormat('yyyy-MM-dd HH:mm').format(event.startTime);
             _endDateTextController.text =
-                DateFormat('yyyy-MM-dd').format(event.endTime);
+                DateFormat('yyyy-MM-dd HH:mm').format(event.endTime);
             _locationTextController.text = event.addressName;
             return Expanded(
               child: ListView(
@@ -160,23 +164,40 @@ class _EventDetailsState extends State<EventDetailsView> {
                                 DateTime? pickedStartDate =
                                     await showDatePicker(
                                         context: context,
-                                        initialDate: (DateTime.now()
-                                            .add(Duration(days: 1))),
-                                        firstDate: (DateTime.now()
-                                            .add(Duration(days: 1))),
+                                        initialDate: DateTime.now(),
+                                        firstDate: DateTime.now(),
                                         lastDate: DateTime(2100));
 
                                 if (pickedStartDate != null) {
+                                  TimeOfDay? pickedStartTime =
+                                      await showTimePicker(
+                                          context: context,
+                                          initialTime:
+                                              TimeOfDay(hour: 0, minute: 0));
+
+                                  _startDate = DateTime(
+                                      pickedStartDate.year,
+                                      pickedStartDate.month,
+                                      pickedStartDate.day,
+                                      (pickedStartTime ??
+                                              TimeOfDay(hour: 0, minute: 0))
+                                          .hour,
+                                      (pickedStartTime ??
+                                              TimeOfDay(hour: 0, minute: 0))
+                                          .minute);
                                   setState(() {
                                     _startDateTextController.text =
-                                        DateFormat('yyyy-MM-dd')
-                                            .format(pickedStartDate);
+                                        DateFormat('yyyy-MM-dd HH:mm')
+                                            .format(_startDate);
                                   });
                                 }
                               },
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return 'Please enter start date';
+                                } else if (_startDate
+                                    .isBefore(DateTime.now())) {
+                                  return "Start time of event must be past now";
                                 }
                                 return null;
                               },
@@ -194,16 +215,30 @@ class _EventDetailsState extends State<EventDetailsView> {
                               onTap: () async {
                                 DateTime? pickedEndDate = await showDatePicker(
                                     context: context,
-                                    initialDate:
-                                        (DateTime.now().add(Duration(days: 1))),
-                                    firstDate:
-                                        (DateTime.now().add(Duration(days: 1))),
+                                    initialDate: DateTime.now(),
+                                    firstDate: DateTime.now(),
                                     lastDate: DateTime(2100));
                                 if (pickedEndDate != null) {
+                                  TimeOfDay? pickedEndTime =
+                                      await showTimePicker(
+                                          context: context,
+                                          initialTime:
+                                              TimeOfDay(hour: 0, minute: 0));
+
+                                  _endDate = DateTime(
+                                      pickedEndDate.year,
+                                      pickedEndDate.month,
+                                      pickedEndDate.day,
+                                      (pickedEndTime ??
+                                              TimeOfDay(hour: 0, minute: 0))
+                                          .hour,
+                                      (pickedEndTime ??
+                                              TimeOfDay(hour: 0, minute: 0))
+                                          .minute);
                                   setState(() {
                                     _endDateTextController.text =
-                                        DateFormat('yyyy-MM-dd')
-                                            .format(pickedEndDate);
+                                        DateFormat('yyyy-MM-dd HH:mm')
+                                            .format(_endDate);
                                   });
                                 }
                               },
@@ -246,7 +281,7 @@ class _EventDetailsState extends State<EventDetailsView> {
                                                   pickedData.latLong.longitude;
                                               latitude =
                                                   pickedData.latLong.latitude;
-                                              Navigator.pop(context);
+                                              context.pop();
                                             }),
                                       );
                                     }));

@@ -17,8 +17,10 @@ class EventsListItem extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(30),
         decoration: BoxDecoration(
-            border: Border.all(width: 1),
-            borderRadius: BorderRadius.all(Radius.circular(5.0))),
+          border: Border.all(width: 1),
+          borderRadius: BorderRadius.all(Radius.circular(5.0)),
+          color: Colors.white,
+        ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(
             event.title,
@@ -29,6 +31,16 @@ class EventsListItem extends StatelessWidget {
           ),
           Text(
             event.name,
+            style: TextStyle(fontSize: 20),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Text(
+            'Free places: ' +
+                event.freePlace.toString() +
+                '/' +
+                event.maxPlace.toString(),
             style: TextStyle(fontSize: 20),
           ),
           SizedBox(

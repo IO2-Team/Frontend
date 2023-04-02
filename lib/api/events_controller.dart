@@ -32,6 +32,7 @@ class EventsController extends found.ChangeNotifier {
         event.id,
         event.title!,
         event.name!,
+        event.maxPlace!,
         event.freePlace!,
         startTime,
         endTime,
@@ -44,7 +45,6 @@ class EventsController extends found.ChangeNotifier {
 
   Future<List<EventListItem>> getEvents() async {
     String token = await _sessionTokenController.get();
-    print(token);
     final eventsResponse = await api.getMyEvents(sessionToken: token);
     List<EventListItem> eventsList = [];
     for (var event in eventsResponse.data!.asList()) {
@@ -54,12 +54,8 @@ class EventsController extends found.ChangeNotifier {
           DateTime.fromMillisecondsSinceEpoch(event.endTime! * 1000);
       String addressName = await parseLocationName(
           double.parse(event.latitude!), double.parse(event.longitude!));
-      eventsList.add(EventListItem(
-        event.id,
-        event.title!,
-        event.name!,
-        event.categories!.toList(),
-      ));
+      eventsList.add(EventListItem(event.id, event.title!, event.name!,
+          event.categories!.toList(), event.maxPlace!, event.freePlace!));
     }
     return eventsList;
   }
@@ -101,7 +97,7 @@ class EventsController extends found.ChangeNotifier {
       {required int id,
       required String title,
       required String name,
-      required int freePlace,
+      required int maxPlace,
       required DateTime startTime,
       required DateTime endTime,
       required double latitude,
@@ -109,8 +105,6 @@ class EventsController extends found.ChangeNotifier {
       required List<Category> categories,
       String? schema}) async {
     String token = await _sessionTokenController.get();
-
-    //api.patchEvent(sessionToken: token, id: id.toString(), event: Event());
   }
 }
 
@@ -118,15 +112,19 @@ class EventListItem {
   final int id;
   final String title;
   final String name;
+  final int maxPlace;
+  final int freePlace;
   final List<Category> categories;
 
-  EventListItem(this.id, this.title, this.name, this.categories);
+  EventListItem(this.id, this.title, this.name, this.categories, this.maxPlace,
+      this.freePlace);
 }
 
 class EventModel {
   final int id;
   final String title;
   final String name;
+  final int maxPlace;
   final int freePlace;
   final DateTime startTime;
   final DateTime endTime;
@@ -140,6 +138,7 @@ class EventModel {
       this.id,
       this.title,
       this.name,
+      this.maxPlace,
       this.freePlace,
       this.startTime,
       this.endTime,

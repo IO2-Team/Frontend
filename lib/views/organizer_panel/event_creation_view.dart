@@ -32,8 +32,10 @@ class _EventCreationState extends State<EventCreationView> {
   final _freePlacesNumberController = TextEditingController();
   final _startDateTextController = TextEditingController();
   late DateTime _startDate;
+  late TimeOfDay _startTime;
   final _endDateTextController = TextEditingController();
   late DateTime _endDate;
+  late TimeOfDay _endTime;
   final _locationTextController = TextEditingController();
   final _categoriesTextController = TextEditingController();
   late double latitude = 52.14;
@@ -140,21 +142,34 @@ class _EventCreationState extends State<EventCreationView> {
                     onTap: () async {
                       DateTime? pickedStartDate = await showDatePicker(
                           context: context,
-                          initialDate: (DateTime.now().add(Duration(days: 1))),
-                          firstDate: (DateTime.now().add(Duration(days: 1))),
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime.now(),
                           lastDate: DateTime(2100));
 
                       if (pickedStartDate != null) {
-                        _startDate = pickedStartDate;
+                        TimeOfDay? pickedStartTime = await showTimePicker(
+                            context: context,
+                            initialTime: TimeOfDay(hour: 0, minute: 0));
+
+                        _startDate = DateTime(
+                            pickedStartDate.year,
+                            pickedStartDate.month,
+                            pickedStartDate.day,
+                            (pickedStartTime ?? TimeOfDay(hour: 0, minute: 0))
+                                .hour,
+                            (pickedStartTime ?? TimeOfDay(hour: 0, minute: 0))
+                                .minute);
                         setState(() {
                           _startDateTextController.text =
-                              DateFormat('yyyy-MM-dd').format(pickedStartDate);
+                              DateFormat('yyyy-MM-dd HH:mm').format(_startDate);
                         });
                       }
                     },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter start date';
+                      } else if (_startDate.isBefore(DateTime.now())) {
+                        return "Start time of event must be past now";
                       }
                       return null;
                     },
@@ -172,14 +187,25 @@ class _EventCreationState extends State<EventCreationView> {
                     onTap: () async {
                       DateTime? pickedEndDate = await showDatePicker(
                           context: context,
-                          initialDate: (DateTime.now().add(Duration(days: 1))),
-                          firstDate: (DateTime.now().add(Duration(days: 1))),
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime.now(),
                           lastDate: DateTime(2100));
                       if (pickedEndDate != null) {
-                        _endDate = pickedEndDate;
+                        TimeOfDay? pickedEndTime = await showTimePicker(
+                            context: context,
+                            initialTime: TimeOfDay(hour: 0, minute: 0));
+
+                        _endDate = DateTime(
+                            pickedEndDate.year,
+                            pickedEndDate.month,
+                            pickedEndDate.day,
+                            (pickedEndTime ?? TimeOfDay(hour: 0, minute: 0))
+                                .hour,
+                            (pickedEndTime ?? TimeOfDay(hour: 0, minute: 0))
+                                .minute);
                         setState(() {
                           _endDateTextController.text =
-                              DateFormat('yyyy-MM-dd').format(pickedEndDate);
+                              DateFormat('yyyy-MM-dd HH:mm').format(_endDate);
                         });
                       }
                     },
@@ -325,8 +351,8 @@ class _EventCreationState extends State<EventCreationView> {
                               name: _nameTextController.text,
                               freePlace:
                                   int.parse(_freePlacesNumberController.text),
-                              startTime: _startDate,
-                              endTime: _endDate,
+                              startTime: _startDate.toUtc(),
+                              endTime: _endDate.toUtc(),
                               latitude: latitude,
                               longitude: longitude,
                               categories: chosenCategories);
@@ -337,7 +363,7 @@ class _EventCreationState extends State<EventCreationView> {
                                 context: context,
                                 builder: (context) => AlertDialog(
                                       title: const Text(
-                                          'Something went wrong. You event cannot be added now'),
+                                          'Something went wrong. Your event cannot be added now'),
                                       actions: <Widget>[
                                         TextButton(
                                           onPressed: () {
