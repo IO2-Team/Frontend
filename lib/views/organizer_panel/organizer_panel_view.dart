@@ -7,7 +7,12 @@ import 'package:webfrontend_dionizos/views/organizer_panel/event_list_item.dart'
 import 'package:webfrontend_dionizos/views/organizer_panel/panel_navigation_bar.dart';
 import 'package:webfrontend_dionizos/widgets/centered_view.dart';
 
-class OrganizerPanelView extends StatelessWidget {
+class OrganizerPanelView extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => new _OrganizerPanelViewState();
+}
+
+class _OrganizerPanelViewState extends State<OrganizerPanelView> {
   @override
   Widget build(BuildContext context) {
     EventsController eventsController = context.watch<EventsController>();
@@ -52,41 +57,49 @@ class OrganizerPanelView extends StatelessWidget {
       ),
     );
   }
-}
 
-Widget eventsList(EventsController eventsController) {
-  if (eventsController.loading == true) {
-    return Expanded(
-        child: Center(
-      child: Container(
-        padding: const EdgeInsets.all(20.0),
-        child: CircularProgressIndicator(),
-      ),
-    ));
+  Widget eventsList(EventsController eventsController) {
+    return FutureBuilder<List<EventListItem>>(
+        future: eventsController.getEvents(),
+        builder: (BuildContext context,
+            AsyncSnapshot<List<EventListItem>> snapshot) {
+          if (!snapshot.hasData) {
+            return Expanded(
+                child: Center(
+              child: Container(
+                padding: const EdgeInsets.all(20.0),
+                child: CircularProgressIndicator(),
+              ),
+            ));
+          } else {
+            List<EventListItem> eventsList = snapshot.data!;
+            if (eventsList.isEmpty) {
+              return Center(
+                child: Text(
+                  "You have no events yet. Click Create new Event to create your first event",
+                  style: TextStyle(fontSize: 20),
+                ),
+              );
+            }
+            return Expanded(
+              child: ListView.separated(
+                  itemCount: eventsList.length,
+                  separatorBuilder: (context, index) => Divider(),
+                  itemBuilder: ((context, index) {
+                    EventListItem event = eventsList[index];
+                    return EventsListItem(
+                      event: event,
+                      onTap: () {
+                        //eventsController.setSelectedEvent(event);
+                        context.go('/organizerPanel/eventDetails',
+                            extra: event.id);
+                      },
+                    );
+                  })),
+            );
+          }
+        });
   }
-  if (eventsController.eventsList.isEmpty) {
-    return Center(
-      child: Text(
-        "You have no events yet. Click Create new Event to create your first event",
-        style: TextStyle(fontSize: 20),
-      ),
-    );
-  }
-  return Expanded(
-    child: ListView.separated(
-        itemCount: eventsController.eventsList.length,
-        separatorBuilder: (context, index) => Divider(),
-        itemBuilder: ((context, index) {
-          EventModel event = eventsController.eventsList[index];
-          return EventsListItem(
-            event: event,
-            onTap: () {
-              eventsController.setSelectedEvent(event);
-              context.go('/organizerPanel/eventDetails');
-            },
-          );
-        })),
-  );
 }
 
 final ButtonStyle flatButtonStyle = TextButton.styleFrom(

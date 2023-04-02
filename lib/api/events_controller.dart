@@ -5,44 +5,48 @@ import 'package:flutter/foundation.dart' as found;
 import 'package:openapi/openapi.dart';
 import 'package:dio/dio.dart';
 import 'package:webfrontend_dionizos/api/storage_controllers.dart';
-import 'package:intl/intl.dart';
-import 'package:intl/date_symbol_data_local.dart';
 import 'package:http/http.dart' as http;
 
 class EventsController extends found.ChangeNotifier {
-  EventsController() {
-    getEvents();
-  }
+  EventsController() {}
 
-  EventApi api = Openapi(
+  static EventApi api = Openapi(
           dio: Dio(BaseOptions(
               baseUrl: 'https://dionizos-backend-app.azurewebsites.net')),
           serializers: standardSerializers)
       .getEventApi();
 
-  bool _loading = false;
-  List<EventModel> _events = [];
-  EventModel? _selectedEvent;
   SessionTokenContoller _sessionTokenController = SessionTokenContoller();
 
-  bool get loading => _loading;
-  List<EventModel> get eventsList => _events;
-  EventModel get selectedEvent => _selectedEvent!;
-
-  setLoading(bool loading) async {
-    _loading = loading;
-    notifyListeners();
-  }
-
-  setEventsList(List<EventModel> events) {
-    _events = events;
-  }
-
-  getEvents() async {
-    setLoading(true);
+  Future<EventModel> getEvent(int id) async {
     String token = await _sessionTokenController.get();
+    final eventResponse = await api.getEventById(id: id);
+    Event event = eventResponse.data!;
+    DateTime startTime =
+        DateTime.fromMillisecondsSinceEpoch(event.startTime! * 1000);
+    DateTime endTime =
+        DateTime.fromMillisecondsSinceEpoch(event.endTime! * 1000);
+    String addressName = await parseLocationName(
+        double.parse(event.latitude!), double.parse(event.longitude!));
+    return EventModel(
+        event.id,
+        event.title!,
+        event.name!,
+        event.freePlace!,
+        startTime,
+        endTime,
+        double.parse(event.latitude!),
+        double.parse(event.longitude!),
+        addressName,
+        event.categories!.toList(),
+        event.placeSchema);
+  }
+
+  Future<List<EventListItem>> getEvents() async {
+    String token = await _sessionTokenController.get();
+    print(token);
     final eventsResponse = await api.getMyEvents(sessionToken: token);
-    List<EventModel> eventModels = [];
+    List<EventListItem> eventsList = [];
     for (var event in eventsResponse.data!.asList()) {
       DateTime startTime =
           DateTime.fromMillisecondsSinceEpoch(event.startTime! * 1000);
@@ -50,45 +54,63 @@ class EventsController extends found.ChangeNotifier {
           DateTime.fromMillisecondsSinceEpoch(event.endTime! * 1000);
       String addressName = await parseLocationName(
           double.parse(event.latitude!), double.parse(event.longitude!));
-      eventModels.add(EventModel(
-          event.id,
-          event.title!,
-          event.name!,
-          event.freePlace!,
-          startTime,
-          endTime,
-          double.parse(event.latitude!),
-          double.parse(event.longitude!),
-          addressName,
-          event.categories!.toList(),
-          event.placeSchema));
+      eventsList.add(EventListItem(
+        event.id,
+        event.title!,
+        event.name!,
+        event.categories!.toList(),
+      ));
     }
-    setEventsList(eventModels);
-    setLoading(false);
+    return eventsList;
   }
 
-  addEvent(EventModel event) async {
+  addEvent(
+      {required String title,
+      required String name,
+      required int freePlace,
+      required DateTime startTime,
+      required DateTime endTime,
+      required double latitude,
+      required double longitude,
+      required List<Category> categories,
+      String? schema}) async {
     String token = await _sessionTokenController.get();
     api.addEvent(
         sessionToken: token,
-        title: event.title,
-        name: event.name,
-        freePlace: event.freePlace,
-        startTime: (event.startTime.millisecondsSinceEpoch / 1000).toInt(),
-        endTime: (event.endTime.millisecondsSinceEpoch / 1000).toInt(),
-        longitude: event.longitude.toString(),
-        latitude: event.latitude.toString(),
-        categories: BuiltList<int>.from(event.categories));
+        title: title,
+        name: name,
+        freePlace: freePlace,
+        startTime: (startTime.millisecondsSinceEpoch / 1000).toInt(),
+        endTime: (endTime.millisecondsSinceEpoch / 1000).toInt(),
+        longitude: longitude.toString(),
+        latitude: latitude.toString(),
+        categories: BuiltList<int>.from(categories.map((e) => e.id!).toList()));
   }
 
-  setSelectedEvent(EventModel event) {
-    _selectedEvent = event;
-  }
-
-  modifyEvent(Event event) async {
+  patchEvent(
+      {required int id,
+      required String title,
+      required String name,
+      required int freePlace,
+      required DateTime startTime,
+      required DateTime endTime,
+      required double latitude,
+      required double longitude,
+      required List<Category> categories,
+      String? schema}) async {
     String token = await _sessionTokenController.get();
-    api.patchEvent(sessionToken: token, id: event.id.toString(), event: event);
+
+    //api.patchEvent(sessionToken: token, id: id.toString(), event: Event());
   }
+}
+
+class EventListItem {
+  final int id;
+  final String title;
+  final String name;
+  final List<Category> categories;
+
+  EventListItem(this.id, this.title, this.name, this.categories);
 }
 
 class EventModel {
