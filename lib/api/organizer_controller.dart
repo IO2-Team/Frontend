@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:openapi/openapi.dart';
 import 'package:dio/dio.dart';
+import 'package:webfrontend_dionizos/api/events_controller.dart';
 import 'package:webfrontend_dionizos/api/storage_controllers.dart';
 
 class OrganizerController extends ChangeNotifier {
@@ -23,6 +24,7 @@ class OrganizerController extends ChangeNotifier {
           await api.loginOrganizer(email: login, password: password);
       await _sessionTokenController.set(logInResponse.data!.sessionToken!);
       _userNameContoller.set(login);
+
       return true;
     } catch (e) {
       return false;

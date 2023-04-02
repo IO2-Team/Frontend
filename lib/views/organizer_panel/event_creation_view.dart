@@ -15,9 +15,9 @@ import 'package:webfrontend_dionizos/api/events_controller.dart';
 import 'package:webfrontend_dionizos/views/organizer_panel/panel_navigation_bar.dart';
 import 'package:webfrontend_dionizos/widgets/centered_view.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:open_street_map_search_and_pick/open_street_map_search_and_pick.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:open_street_map_search_and_pick/open_street_map_search_and_pick.dart';
 
 class EventCreationView extends StatefulWidget {
   @override
@@ -32,8 +32,10 @@ class _EventCreationState extends State<EventCreationView> {
   final _freePlacesNumberController = TextEditingController();
   final _startDateTextController = TextEditingController();
   late DateTime _startDate;
+  late TimeOfDay _startTime;
   final _endDateTextController = TextEditingController();
   late DateTime _endDate;
+  late TimeOfDay _endTime;
   final _locationTextController = TextEditingController();
   final _categoriesTextController = TextEditingController();
   late double latitude = 52.14;
@@ -140,21 +142,34 @@ class _EventCreationState extends State<EventCreationView> {
                     onTap: () async {
                       DateTime? pickedStartDate = await showDatePicker(
                           context: context,
-                          initialDate: (DateTime.now().add(Duration(days: 1))),
-                          firstDate: (DateTime.now().add(Duration(days: 1))),
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime.now(),
                           lastDate: DateTime(2100));
 
                       if (pickedStartDate != null) {
-                        _startDate = pickedStartDate;
+                        TimeOfDay? pickedStartTime = await showTimePicker(
+                            context: context,
+                            initialTime: TimeOfDay(hour: 0, minute: 0));
+
+                        _startDate = DateTime(
+                            pickedStartDate.year,
+                            pickedStartDate.month,
+                            pickedStartDate.day,
+                            (pickedStartTime ?? TimeOfDay(hour: 0, minute: 0))
+                                .hour,
+                            (pickedStartTime ?? TimeOfDay(hour: 0, minute: 0))
+                                .minute);
                         setState(() {
                           _startDateTextController.text =
-                              DateFormat('yyyy-MM-dd').format(pickedStartDate);
+                              DateFormat('yyyy-MM-dd HH:mm').format(_startDate);
                         });
                       }
                     },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter start date';
+                      } else if (_startDate.isBefore(DateTime.now())) {
+                        return "Start time of event must be past now";
                       }
                       return null;
                     },
@@ -172,14 +187,25 @@ class _EventCreationState extends State<EventCreationView> {
                     onTap: () async {
                       DateTime? pickedEndDate = await showDatePicker(
                           context: context,
-                          initialDate: (DateTime.now().add(Duration(days: 1))),
-                          firstDate: (DateTime.now().add(Duration(days: 1))),
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime.now(),
                           lastDate: DateTime(2100));
                       if (pickedEndDate != null) {
-                        _endDate = pickedEndDate;
+                        TimeOfDay? pickedEndTime = await showTimePicker(
+                            context: context,
+                            initialTime: TimeOfDay(hour: 0, minute: 0));
+
+                        _endDate = DateTime(
+                            pickedEndDate.year,
+                            pickedEndDate.month,
+                            pickedEndDate.day,
+                            (pickedEndTime ?? TimeOfDay(hour: 0, minute: 0))
+                                .hour,
+                            (pickedEndTime ?? TimeOfDay(hour: 0, minute: 0))
+                                .minute);
                         setState(() {
                           _endDateTextController.text =
-                              DateFormat('yyyy-MM-dd').format(pickedEndDate);
+                              DateFormat('yyyy-MM-dd HH:mm').format(_endDate);
                         });
                       }
                     },
@@ -292,17 +318,62 @@ class _EventCreationState extends State<EventCreationView> {
                               : Colors.green;
                         }),
                       ),
-                      onPressed: () {
+                      onPressed: () async {
                         if (_formKey.currentState!.validate()) {
-                          eventsController.addEvent(
+                          showDialog(
+                              // The user CANNOT close this dialog  by pressing outsite it
+                              barrierDismissible: false,
+                              context: context,
+                              builder: (_) {
+                                return Dialog(
+                                  // The background color
+                                  backgroundColor: Colors.white,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 20),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: const [
+                                        // The loading indicator
+                                        CircularProgressIndicator(),
+                                        SizedBox(
+                                          height: 15,
+                                        ),
+                                        // Some text
+                                        Text('Loading...')
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              });
+                          final result = await eventsController.addEvent(
                               title: _titleTextController.text,
                               name: _nameTextController.text,
                               freePlace:
                                   int.parse(_freePlacesNumberController.text),
-                              startTime: _startDate,
-                              endTime: _endDate,
-                              categories:
-                                  chosenCategories.map((e) => e.id!).toList());
+                              startTime: _startDate.toUtc(),
+                              endTime: _endDate.toUtc(),
+                              latitude: latitude,
+                              longitude: longitude,
+                              categories: chosenCategories);
+
+                          if (result == false) {
+                            context.pop();
+                            await showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                      title: const Text(
+                                          'Something went wrong. Your event cannot be added now'),
+                                      actions: <Widget>[
+                                        TextButton(
+                                          onPressed: () {
+                                            context.pop();
+                                          },
+                                          child: const Text('OK'),
+                                        ),
+                                      ],
+                                    ));
+                          }
                           context.go('/organizerPanel');
                         }
                       },
