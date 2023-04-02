@@ -128,11 +128,38 @@ class _SignUpFormState extends State<SignUpForm> {
                             backgroundColor: Colors.green,
                             padding: EdgeInsets.all(15)),
                         onPressed: () async {
+                          showDialog(
+                              // The user CANNOT close this dialog  by pressing outsite it
+                              barrierDismissible: false,
+                              context: context,
+                              builder: (_) {
+                                return Dialog(
+                                  // The background color
+                                  backgroundColor: Colors.white,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 20),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: const [
+                                        // The loading indicator
+                                        CircularProgressIndicator(),
+                                        SizedBox(
+                                          height: 15,
+                                        ),
+                                        // Some text
+                                        Text('Loading...')
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              });
                           if (_formKey.currentState!.validate()) {
                             if (await organizerController.signUp(
                                 _usernameTextController.text,
                                 _emailTextController.text,
                                 _passwordTextController.text)) {
+                              context.pop();
                               showDialog(
                                   context: context,
                                   builder: (context) {
@@ -140,6 +167,7 @@ class _SignUpFormState extends State<SignUpForm> {
                                         organizerController);
                                   });
                             } else {
+                              context.pop();
                               _emailUsed = true;
                               _formKey.currentState!.validate();
                             }
@@ -196,17 +224,44 @@ class _SignUpFormState extends State<SignUpForm> {
           textColor: Colors.white,
           child: Text('OK'),
           onPressed: () async {
+            showDialog(
+                // The user CANNOT close this dialog  by pressing outsite it
+                barrierDismissible: false,
+                context: context,
+                builder: (_) {
+                  return Dialog(
+                    // The background color
+                    backgroundColor: Colors.white,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 20),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [
+                          // The loading indicator
+                          CircularProgressIndicator(),
+                          SizedBox(
+                            height: 15,
+                          ),
+                          // Some text
+                          Text('Loading...')
+                        ],
+                      ),
+                    ),
+                  );
+                });
             if (await organizerController
                 .confirmAccount(_confirmationCodeTextController.text)) {
               if (await organizerController.logIn(
                   _emailTextController.text, _passwordTextController.text)) {
                 context.go('/organizerPanel');
               } else {
+                context.pop();
                 _confirmationCodeTextController.text = "";
                 isWrongCode = true;
                 _formKeyAlert.currentState!.validate();
               }
             } else {
+              context.pop();
               _confirmationCodeTextController.text = "";
               isWrongCode = true;
               _formKeyAlert.currentState!.validate();

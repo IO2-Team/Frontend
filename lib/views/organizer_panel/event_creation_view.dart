@@ -292,9 +292,35 @@ class _EventCreationState extends State<EventCreationView> {
                               : Colors.green;
                         }),
                       ),
-                      onPressed: () {
+                      onPressed: () async {
                         if (_formKey.currentState!.validate()) {
-                          eventsController.addEvent(
+                          showDialog(
+                              // The user CANNOT close this dialog  by pressing outsite it
+                              barrierDismissible: false,
+                              context: context,
+                              builder: (_) {
+                                return Dialog(
+                                  // The background color
+                                  backgroundColor: Colors.white,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 20),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: const [
+                                        // The loading indicator
+                                        CircularProgressIndicator(),
+                                        SizedBox(
+                                          height: 15,
+                                        ),
+                                        // Some text
+                                        Text('Loading...')
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              });
+                          final result = await eventsController.addEvent(
                               title: _titleTextController.text,
                               name: _nameTextController.text,
                               freePlace:
@@ -304,6 +330,24 @@ class _EventCreationState extends State<EventCreationView> {
                               latitude: latitude,
                               longitude: longitude,
                               categories: chosenCategories);
+
+                          if (result == false) {
+                            context.pop();
+                            await showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                      title: const Text(
+                                          'Something went wrong. You event cannot be added now'),
+                                      actions: <Widget>[
+                                        TextButton(
+                                          onPressed: () {
+                                            context.pop();
+                                          },
+                                          child: const Text('OK'),
+                                        ),
+                                      ],
+                                    ));
+                          }
                           context.go('/organizerPanel');
                         }
                       },

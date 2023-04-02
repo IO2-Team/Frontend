@@ -64,7 +64,7 @@ class EventsController extends found.ChangeNotifier {
     return eventsList;
   }
 
-  addEvent(
+  Future<bool> addEvent(
       {required String title,
       required String name,
       required int freePlace,
@@ -75,16 +75,26 @@ class EventsController extends found.ChangeNotifier {
       required List<Category> categories,
       String? schema}) async {
     String token = await _sessionTokenController.get();
-    api.addEvent(
-        sessionToken: token,
-        title: title,
-        name: name,
-        freePlace: freePlace,
-        startTime: (startTime.millisecondsSinceEpoch / 1000).toInt(),
-        endTime: (endTime.millisecondsSinceEpoch / 1000).toInt(),
-        longitude: longitude.toString(),
-        latitude: latitude.toString(),
-        categories: BuiltList<int>.from(categories.map((e) => e.id!).toList()));
+    try {
+      final response = await api.addEvent(
+          sessionToken: token,
+          title: title,
+          name: name,
+          freePlace: freePlace,
+          startTime: (startTime.millisecondsSinceEpoch / 1000).toInt(),
+          endTime: (endTime.millisecondsSinceEpoch / 1000).toInt(),
+          longitude: longitude.toString(),
+          latitude: latitude.toString(),
+          categories:
+              BuiltList<int>.from(categories.map((e) => e.id!).toList()));
+
+      if (response.statusCode == 200)
+        return true;
+      else
+        return false;
+    } catch (e) {
+      return false;
+    }
   }
 
   patchEvent(

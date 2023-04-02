@@ -85,12 +85,39 @@ class _SignUpFormState extends State<SignInForm> {
                             padding: EdgeInsets.all(15)),
                         onPressed: () async {
                           _isLogInFailed = false;
+                          showDialog(
+                              // The user CANNOT close this dialog  by pressing outsite it
+                              barrierDismissible: false,
+                              context: context,
+                              builder: (_) {
+                                return Dialog(
+                                  // The background color
+                                  backgroundColor: Colors.white,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 20),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: const [
+                                        // The loading indicator
+                                        CircularProgressIndicator(),
+                                        SizedBox(
+                                          height: 15,
+                                        ),
+                                        // Some text
+                                        Text('Loading...')
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              });
                           if (_formKey.currentState!.validate()) {
                             if (await organizerController.logIn(
                                 _usernameTextController.text,
                                 _passwordTextController.text)) {
                               context.go('/organizerPanel');
                             } else {
+                              context.pop();
                               _logInFailed();
                             }
                           }
