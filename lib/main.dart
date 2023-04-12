@@ -52,7 +52,8 @@ final GoRouter _router = GoRouter(
               GoRoute(
                 path: 'eventDetails',
                 builder: (BuildContext context, GoRouterState state) {
-                  return EventDetailsView();
+                  int eventId = state.extra as int;
+                  return EventDetailsView(eventId);
                 },
               ),
               GoRoute(
@@ -81,17 +82,11 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
         theme: ThemeData(
-          scaffoldBackgroundColor: Color.fromARGB(255, 248, 228, 201),
+          scaffoldBackgroundColor: Color.fromARGB(255, 250, 254, 255),
           primarySwatch: Colors.green,
           textTheme: Theme.of(context).textTheme.apply(fontFamily: 'Open Sans'),
         ),
         routerConfig: _router,
-        // home: MyHomePage(
-        //     title: 'Flutter Demo Home Page',
-        //     api: Openapi(
-        //         dio: Dio(BaseOptions(
-        //             baseUrl: 'https://dionizos-backend-app.azurewebsites.net')),
-        //         serializers: standardSerializers)),
       ),
     );
   }

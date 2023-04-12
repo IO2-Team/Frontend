@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -14,6 +16,8 @@ import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 class EventDetailsView extends StatefulWidget {
+  final int eventId;
+  EventDetailsView(this.eventId);
   @override
   State<EventDetailsView> createState() => _EventDetailsState();
 }
@@ -25,7 +29,11 @@ class _EventDetailsState extends State<EventDetailsView> {
   final _nameTextController = TextEditingController();
   final _freePlacesNumberController = TextEditingController();
   final _startDateTextController = TextEditingController();
+  late DateTime _startDate;
+  late TimeOfDay _startTime;
   final _endDateTextController = TextEditingController();
+  late DateTime _endDate;
+  late TimeOfDay _endTime;
   final _locationTextController = TextEditingController();
   final _categoriesTextController = TextEditingController();
   late double latitude = 52.14;
@@ -48,298 +56,367 @@ class _EventDetailsState extends State<EventDetailsView> {
             SizedBox(
               height: 40,
             ),
-            eventDetails(eventsController.selectedEvent,
-                categoriesController.categoriesList),
+            eventDetails(eventsController, categoriesController.categoriesList),
           ],
         ),
       ),
     );
   }
 
-  Widget eventDetails(Event event, List<Category> categories) {
-    chosenCategories = eventCategories(event);
-    _titleTextController.text = event.title!;
-    _nameTextController.text = event.name!;
-    _freePlacesNumberController.text = event.freePlace.toString();
-    _startDateTextController.text = DateFormat('yyyy-MM-dd')
-        .format(DateTime.fromMillisecondsSinceEpoch(event.startTime!));
-    _endDateTextController.text = DateFormat('yyyy-MM-dd')
-        .format(DateTime.fromMillisecondsSinceEpoch(event.endTime!));
-    return Expanded(
-      child: ListView(
-        children: [
-          Form(
-            key: _formKey,
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 20),
-              child: Column(
+  Widget eventDetails(
+      EventsController eventsController, List<Category> categories) {
+    return FutureBuilder<EventModel>(
+        future: eventsController.getEvent(widget.eventId),
+        builder: (BuildContext context, AsyncSnapshot<EventModel> snapshot) {
+          if (!snapshot.hasData) {
+            return Expanded(
+                child: Center(
+              child: Container(
+                padding: const EdgeInsets.all(20.0),
+                child: CircularProgressIndicator(),
+              ),
+            ));
+          } else {
+            EventModel event = snapshot.data!;
+            chosenCategories = eventCategories(event);
+            _titleTextController.text = event.title;
+            _nameTextController.text = event.name;
+            _freePlacesNumberController.text = event.freePlace.toString();
+            _startDateTextController.text =
+                DateFormat('yyyy-MM-dd HH:mm').format(event.startTime);
+            _endDateTextController.text =
+                DateFormat('yyyy-MM-dd HH:mm').format(event.endTime);
+            _locationTextController.text = event.addressName;
+            return Expanded(
+              child: ListView(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextFormField(
-                      controller: _titleTextController,
-                      decoration: const InputDecoration(
-                          icon: Icon(Icons.title),
-                          border: OutlineInputBorder(),
-                          hintText: 'Enter event Title'),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter event Title';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextFormField(
-                      keyboardType: TextInputType.multiline,
-                      maxLines: null,
-                      controller: _nameTextController,
-                      decoration: const InputDecoration(
-                          icon: Icon(Icons.description),
-                          border: OutlineInputBorder(),
-                          hintText: 'Enter event description'),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter event description';
-                        } else
-                          return null;
-                      },
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextFormField(
-                      controller: _freePlacesNumberController,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      decoration: const InputDecoration(
-                          icon: Icon(Icons.numbers),
-                          border: OutlineInputBorder(),
-                          hintText: 'Enter number of places'),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter number of places';
-                        } else if (int.parse(value) <= 0) {
-                          return "Number of free places must be > 0";
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextFormField(
-                      readOnly: true,
-                      controller: _startDateTextController,
-                      decoration: const InputDecoration(
-                          icon: Icon(Icons.calendar_today_rounded),
-                          border: OutlineInputBorder(),
-                          hintText: 'Enter start date'),
-                      onTap: () async {
-                        DateTime? pickedStartDate = await showDatePicker(
-                            context: context,
-                            initialDate:
-                                (DateTime.now().add(Duration(days: 1))),
-                            firstDate: (DateTime.now().add(Duration(days: 1))),
-                            lastDate: DateTime(2100));
-
-                        if (pickedStartDate != null) {
-                          setState(() {
-                            _startDateTextController.text =
-                                DateFormat('yyyy-MM-dd')
-                                    .format(pickedStartDate);
-                          });
-                        }
-                      },
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter start date';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextFormField(
-                      readOnly: true,
-                      controller: _endDateTextController,
-                      decoration: const InputDecoration(
-                          icon: Icon(Icons.calendar_today_rounded),
-                          border: OutlineInputBorder(),
-                          hintText: 'Enter end date'),
-                      onTap: () async {
-                        DateTime? pickedEndDate = await showDatePicker(
-                            context: context,
-                            initialDate:
-                                (DateTime.now().add(Duration(days: 1))),
-                            firstDate: (DateTime.now().add(Duration(days: 1))),
-                            lastDate: DateTime(2100));
-                        if (pickedEndDate != null) {
-                          setState(() {
-                            _endDateTextController.text =
-                                DateFormat('yyyy-MM-dd').format(pickedEndDate);
-                          });
-                        }
-                      },
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter end date';
-                        } else if (_startDateTextController.text != null &&
-                            DateTime.parse(_startDateTextController.text)
-                                .isAfter(DateTime.parse(
-                                    _endDateTextController.text))) {
-                          return 'End date must be after start date';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextFormField(
-                      readOnly: true,
-                      controller: _locationTextController,
-                      decoration: const InputDecoration(
-                          icon: Icon(Icons.location_on_outlined),
-                          border: OutlineInputBorder(),
-                          hintText: 'Enter location'),
-                      onTap: () async {
-                        await showDialog(
-                            context: context,
-                            builder: ((context) {
-                              return Dialog(
-                                child: OpenStreetMapSearchAndPick(
-                                    center: LatLong(latitude, longitude),
-                                    onPicked: (pickedData) {
-                                      _locationTextController.text =
-                                          pickedData.address;
-                                      longitude = pickedData.latLong.longitude;
-                                      latitude = pickedData.latLong.latitude;
-                                      Navigator.pop(context);
-                                    }),
-                              );
-                            }));
-                      },
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter location';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: FormField(
-                      builder: (FormFieldState state) => Column(children: [
-                        MultiSelectDialogField(
-                          chipDisplay: MultiSelectChipDisplay(
-                            items: categories
-                                .map((e) => MultiSelectItem(e, e.name!))
-                                .toList(),
-                            chipColor: Colors.green,
-                            textStyle: TextStyle(color: Colors.white),
+                  Form(
+                    key: _formKey,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 20),
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: TextFormField(
+                              controller: _titleTextController,
+                              decoration: const InputDecoration(
+                                  icon: Icon(Icons.title),
+                                  border: OutlineInputBorder(),
+                                  hintText: 'Enter event Title'),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter event Title';
+                                }
+                                return null;
+                              },
+                            ),
                           ),
-                          buttonIcon: Icon(Icons.category),
-                          buttonText: Text('Choose categories'),
-                          initialValue: chosenCategories,
-                          items: categories
-                              .map((e) => MultiSelectItem(e, e.name!))
-                              .toList(),
-                          listType: MultiSelectListType.CHIP,
-                          onConfirm: (values) {
-                            chosenCategories = values;
-                            state.didChange(
-                                chosenCategories.length > 0 ? "changed" : null);
-                          },
-                          onSelectionChanged: (values) {
-                            chosenCategories = values;
-                            state.didChange(
-                                chosenCategories.length > 0 ? "changed" : null);
-                          },
-                        ),
-                        state.hasError
-                            ? Text(
-                                state.errorText!,
-                                style:
-                                    TextStyle(color: Colors.red, fontSize: 12),
-                              )
-                            : Container()
-                      ]),
-                      validator: (value) {
-                        if (value == null) {
-                          return 'Please choose at least one category';
-                        }
-                        return null;
-                      },
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: TextFormField(
+                              keyboardType: TextInputType.multiline,
+                              maxLines: null,
+                              controller: _nameTextController,
+                              decoration: const InputDecoration(
+                                  icon: Icon(Icons.description),
+                                  border: OutlineInputBorder(),
+                                  hintText: 'Enter event description'),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter event description';
+                                } else
+                                  return null;
+                              },
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: TextFormField(
+                              controller: _freePlacesNumberController,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly
+                              ],
+                              decoration: const InputDecoration(
+                                  icon: Icon(Icons.numbers),
+                                  border: OutlineInputBorder(),
+                                  hintText: 'Enter number of places'),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter number of places';
+                                } else if (int.parse(value) <= 0) {
+                                  return "Number of free places must be > 0";
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: TextFormField(
+                              readOnly: true,
+                              controller: _startDateTextController,
+                              decoration: const InputDecoration(
+                                  icon: Icon(Icons.calendar_today_rounded),
+                                  border: OutlineInputBorder(),
+                                  hintText: 'Enter start date'),
+                              onTap: () async {
+                                DateTime? pickedStartDate =
+                                    await showDatePicker(
+                                        context: context,
+                                        initialDate: DateTime.now(),
+                                        firstDate: DateTime.now(),
+                                        lastDate: DateTime(2100));
+
+                                if (pickedStartDate != null) {
+                                  TimeOfDay? pickedStartTime =
+                                      await showTimePicker(
+                                          context: context,
+                                          initialTime:
+                                              TimeOfDay(hour: 0, minute: 0));
+
+                                  _startDate = DateTime(
+                                      pickedStartDate.year,
+                                      pickedStartDate.month,
+                                      pickedStartDate.day,
+                                      (pickedStartTime ??
+                                              TimeOfDay(hour: 0, minute: 0))
+                                          .hour,
+                                      (pickedStartTime ??
+                                              TimeOfDay(hour: 0, minute: 0))
+                                          .minute);
+                                  setState(() {
+                                    _startDateTextController.text =
+                                        DateFormat('yyyy-MM-dd HH:mm')
+                                            .format(_startDate);
+                                  });
+                                }
+                              },
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter start date';
+                                } else if (_startDate
+                                    .isBefore(DateTime.now())) {
+                                  return "Start time of event must be past now";
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: TextFormField(
+                              readOnly: true,
+                              controller: _endDateTextController,
+                              decoration: const InputDecoration(
+                                  icon: Icon(Icons.calendar_today_rounded),
+                                  border: OutlineInputBorder(),
+                                  hintText: 'Enter end date'),
+                              onTap: () async {
+                                DateTime? pickedEndDate = await showDatePicker(
+                                    context: context,
+                                    initialDate: DateTime.now(),
+                                    firstDate: DateTime.now(),
+                                    lastDate: DateTime(2100));
+                                if (pickedEndDate != null) {
+                                  TimeOfDay? pickedEndTime =
+                                      await showTimePicker(
+                                          context: context,
+                                          initialTime:
+                                              TimeOfDay(hour: 0, minute: 0));
+
+                                  _endDate = DateTime(
+                                      pickedEndDate.year,
+                                      pickedEndDate.month,
+                                      pickedEndDate.day,
+                                      (pickedEndTime ??
+                                              TimeOfDay(hour: 0, minute: 0))
+                                          .hour,
+                                      (pickedEndTime ??
+                                              TimeOfDay(hour: 0, minute: 0))
+                                          .minute);
+                                  setState(() {
+                                    _endDateTextController.text =
+                                        DateFormat('yyyy-MM-dd HH:mm')
+                                            .format(_endDate);
+                                  });
+                                }
+                              },
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter end date';
+                                } else if (_startDateTextController.text !=
+                                        null &&
+                                    DateTime.parse(
+                                            _startDateTextController.text)
+                                        .isAfter(DateTime.parse(
+                                            _endDateTextController.text))) {
+                                  return 'End date must be after start date';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: TextFormField(
+                              readOnly: true,
+                              controller: _locationTextController,
+                              decoration: const InputDecoration(
+                                  icon: Icon(Icons.location_on_outlined),
+                                  border: OutlineInputBorder(),
+                                  hintText: 'Enter location'),
+                              onTap: () async {
+                                await showDialog(
+                                    context: context,
+                                    builder: ((context) {
+                                      return Dialog(
+                                        child: OpenStreetMapSearchAndPick(
+                                            center:
+                                                LatLong(latitude, longitude),
+                                            onPicked: (pickedData) {
+                                              _locationTextController.text =
+                                                  pickedData.address;
+                                              longitude =
+                                                  pickedData.latLong.longitude;
+                                              latitude =
+                                                  pickedData.latLong.latitude;
+                                              context.pop();
+                                            }),
+                                      );
+                                    }));
+                              },
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter location';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: FormField(
+                              builder: (FormFieldState state) =>
+                                  Column(children: [
+                                MultiSelectDialogField(
+                                  chipDisplay: MultiSelectChipDisplay(
+                                    items: categories
+                                        .map((e) => MultiSelectItem(e, e.name!))
+                                        .toList(),
+                                    chipColor: Colors.green,
+                                    textStyle: TextStyle(color: Colors.white),
+                                  ),
+                                  buttonIcon: Icon(Icons.category),
+                                  buttonText: Text('Choose categories'),
+                                  initialValue: chosenCategories,
+                                  items: categories
+                                      .map((e) => MultiSelectItem(e, e.name!))
+                                      .toList(),
+                                  listType: MultiSelectListType.CHIP,
+                                  onConfirm: (values) {
+                                    chosenCategories = values;
+                                    state.didChange(chosenCategories.length > 0
+                                        ? "changed"
+                                        : null);
+                                  },
+                                  onSelectionChanged: (values) {
+                                    chosenCategories = values;
+                                    state.didChange(chosenCategories.length > 0
+                                        ? "changed"
+                                        : null);
+                                  },
+                                ),
+                                state.hasError
+                                    ? Text(
+                                        state.errorText!,
+                                        style: TextStyle(
+                                            color: Colors.red, fontSize: 12),
+                                      )
+                                    : Container()
+                              ]),
+                              validator: (value) {
+                                if (value == null) {
+                                  return 'Please choose at least one category';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              TextButton(
+                                style: ButtonStyle(
+                                  foregroundColor:
+                                      MaterialStateProperty.resolveWith(
+                                          (Set<MaterialState> states) {
+                                    return states
+                                            .contains(MaterialState.disabled)
+                                        ? null
+                                        : Colors.white;
+                                  }),
+                                  backgroundColor:
+                                      MaterialStateProperty.resolveWith(
+                                          (Set<MaterialState> states) {
+                                    return states
+                                            .contains(MaterialState.disabled)
+                                        ? null
+                                        : Colors.green;
+                                  }),
+                                ),
+                                onPressed: () {
+                                  if (_formKey.currentState!.validate()) {
+                                    context.go('/organizerPanel');
+                                  }
+                                },
+                                child: const Text('Save changes'),
+                              ),
+                              SizedBox(
+                                width: 20,
+                              ),
+                              TextButton(
+                                style: ButtonStyle(
+                                  foregroundColor:
+                                      MaterialStateProperty.resolveWith(
+                                          (Set<MaterialState> states) {
+                                    return states
+                                            .contains(MaterialState.disabled)
+                                        ? null
+                                        : Colors.white;
+                                  }),
+                                  backgroundColor:
+                                      MaterialStateProperty.resolveWith(
+                                          (Set<MaterialState> states) {
+                                    return states
+                                            .contains(MaterialState.disabled)
+                                        ? null
+                                        : Colors.red;
+                                  }),
+                                ),
+                                onPressed: () {
+                                  context.go('/organizerPanel');
+                                },
+                                child: const Text('Cancel'),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
                     ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        style: ButtonStyle(
-                          foregroundColor: MaterialStateProperty.resolveWith(
-                              (Set<MaterialState> states) {
-                            return states.contains(MaterialState.disabled)
-                                ? null
-                                : Colors.white;
-                          }),
-                          backgroundColor: MaterialStateProperty.resolveWith(
-                              (Set<MaterialState> states) {
-                            return states.contains(MaterialState.disabled)
-                                ? null
-                                : Colors.green;
-                          }),
-                        ),
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            context.go('/organizerPanel');
-                          }
-                        },
-                        child: const Text('Save changes'),
-                      ),
-                      SizedBox(
-                        width: 20,
-                      ),
-                      TextButton(
-                        style: ButtonStyle(
-                          foregroundColor: MaterialStateProperty.resolveWith(
-                              (Set<MaterialState> states) {
-                            return states.contains(MaterialState.disabled)
-                                ? null
-                                : Colors.white;
-                          }),
-                          backgroundColor: MaterialStateProperty.resolveWith(
-                              (Set<MaterialState> states) {
-                            return states.contains(MaterialState.disabled)
-                                ? null
-                                : Colors.red;
-                          }),
-                        ),
-                        onPressed: () {
-                          context.go('/organizerPanel');
-                        },
-                        child: const Text('Cancel'),
-                      ),
-                    ],
                   )
                 ],
               ),
-            ),
-          )
-        ],
-      ),
-    );
+            );
+          }
+        });
   }
 
-  List<Category> eventCategories(Event event) {
+  List<Category> eventCategories(EventModel event) {
     if (event.categories == null) {
       return List<Category>.empty();
     }
-    return event.categories!.toList();
+    return event.categories.toList();
   }
 
   Future setCurrentPosition() async {
