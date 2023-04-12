@@ -80,7 +80,7 @@ class EventsController extends found.ChangeNotifier {
     builder.categoriesIds = ListBuilder<int>(categories);
     builder.latitude = latitude;
     builder.longitude = longitude;
-    builder.placeSchema = placeSchema;
+    builder.placeSchema = placeSchema ?? "";
     api.addEvent(sessionToken: token, eventForm: builder.build());
     return true;
   }
