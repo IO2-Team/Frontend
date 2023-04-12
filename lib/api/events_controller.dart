@@ -48,18 +48,21 @@ class EventsController extends ChangeNotifier {
       required DateTime startTime,
       required DateTime endTime,
       required List<int> categories,
+      required String latitude,
+      required String longitude,
       String? placeSchema}) async {
     String token = await _sessionTokenController.get();
-    api.addEvent(
-        sessionToken: token,
-        title: title,
-        name: name,
-        freePlace: freePlace,
-        startTime: (startTime.millisecondsSinceEpoch / 1000).toInt(),
-        endTime: (endTime.millisecondsSinceEpoch / 1000).toInt(),
-        longitude: "0",
-        latitude: "0",
-        categories: BuiltList<int>.from(categories));
+    EventFormBuilder builder = EventFormBuilder();
+    builder.title = title;
+    builder.name = name;
+    builder.maxPlace = freePlace;
+    builder.startTime = (startTime.millisecondsSinceEpoch / 1000).toInt();
+    builder.endTime = (endTime.millisecondsSinceEpoch / 1000).toInt();
+    builder.categoriesIds = ListBuilder<int>(categories);
+    builder.latitude = latitude;
+    builder.longitude = longitude;
+    builder.placeSchema = placeSchema;
+    api.addEvent(sessionToken: token, eventForm: builder.build());
   }
 
   setSelectedEvent(Event event) {
@@ -68,6 +71,6 @@ class EventsController extends ChangeNotifier {
 
   modifyEvent(Event event) async {
     String token = await _sessionTokenController.get();
-    api.patchEvent(sessionToken: token, id: event.id.toString(), event: event);
+    //api.patchEvent(sessionToken: token, id: event.id.toString(), event: event);
   }
 }

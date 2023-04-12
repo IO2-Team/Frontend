@@ -1,4 +1,4 @@
-# openapi.model.Organizer
+# openapi.model.Place
 
 ## Load the model package
 ```dart
@@ -9,9 +9,7 @@ import 'package:openapi/api.dart';
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **int** |  | 
-**name** | **String** |  | 
-**email** | **String** |  | 
-**status** | **String** | User Status | 
+**free** | **bool** |  | 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

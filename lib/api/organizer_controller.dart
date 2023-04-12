@@ -31,8 +31,11 @@ class OrganizerController extends ChangeNotifier {
 
   Future<bool> signUp(String username, String email, String password) async {
     try {
-      final signUpResponse =
-          await api.signUp(name: username, email: email, password: password);
+      OrganizerFormBuilder builder = OrganizerFormBuilder();
+      builder.name = username;
+      builder.email = email;
+      builder.password = password;
+      final signUpResponse = await api.signUp(organizerForm: builder.build());
       _userId = signUpResponse.data!.id;
       return true;
     } catch (e) {

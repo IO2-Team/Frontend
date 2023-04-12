@@ -301,6 +301,8 @@ class _EventCreationState extends State<EventCreationView> {
                                   int.parse(_freePlacesNumberController.text),
                               startTime: _startDate,
                               endTime: _endDate,
+                              latitude: latitude.toStringAsFixed(7),
+                              longitude: longitude.toStringAsFixed(7),
                               categories:
                                   chosenCategories.map((e) => e.id!).toList());
                           context.go('/organizerPanel');

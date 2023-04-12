@@ -16,9 +16,15 @@ import 'package:openapi/src/model/date.dart';
 
 import 'package:openapi/src/model/category.dart';
 import 'package:openapi/src/model/event.dart';
+import 'package:openapi/src/model/event_form.dart';
+import 'package:openapi/src/model/event_patch.dart';
 import 'package:openapi/src/model/event_status.dart';
+import 'package:openapi/src/model/event_with_places.dart';
 import 'package:openapi/src/model/login_organizer200_response.dart';
 import 'package:openapi/src/model/organizer.dart';
+import 'package:openapi/src/model/organizer_form.dart';
+import 'package:openapi/src/model/organizer_patch.dart';
+import 'package:openapi/src/model/place.dart';
 import 'package:openapi/src/model/reservation_dto.dart';
 
 part 'serializers.g.dart';
@@ -26,19 +32,21 @@ part 'serializers.g.dart';
 @SerializersFor([
   Category,
   Event,
+  EventForm,
+  EventPatch,
   EventStatus,
+  EventWithPlaces,
   LoginOrganizer200Response,
   Organizer,
+  OrganizerForm,
+  OrganizerPatch,
+  Place,
   ReservationDTO,
 ])
 Serializers serializers = (_$serializers.toBuilder()
       ..addBuilderFactory(
         const FullType(BuiltList, [FullType(Event)]),
         () => ListBuilder<Event>(),
-      )
-      ..addBuilderFactory(
-        const FullType(BuiltList, [FullType(int)]),
-        () => ListBuilder<int>(),
       )
       ..addBuilderFactory(
         const FullType(BuiltList, [FullType(Category)]),

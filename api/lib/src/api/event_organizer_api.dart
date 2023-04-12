@@ -7,9 +7,10 @@ import 'dart:async';
 import 'package:built_value/serializer.dart';
 import 'package:dio/dio.dart';
 
-import 'package:openapi/src/api_util.dart';
 import 'package:openapi/src/model/login_organizer200_response.dart';
 import 'package:openapi/src/model/organizer.dart';
+import 'package:openapi/src/model/organizer_form.dart';
+import 'package:openapi/src/model/organizer_patch.dart';
 
 class EventOrganizerApi {
 
@@ -32,9 +33,9 @@ class EventOrganizerApi {
   /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
   /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
   ///
-  /// Returns a [Future] containing a [Response] with a [Organizer] as data
+  /// Returns a [Future]
   /// Throws [DioError] if API call or serialization fails
-  Future<Response<Organizer>> confirm({ 
+  Future<Response<void>> confirm({ 
     required String id,
     required String code,
     CancelToken? cancelToken,
@@ -48,6 +49,7 @@ class EventOrganizerApi {
     final _options = Options(
       method: r'POST',
       headers: <String, dynamic>{
+        r'code': code,
         ...?headers,
       },
       extra: <String, dynamic>{
@@ -57,47 +59,15 @@ class EventOrganizerApi {
       validateStatus: validateStatus,
     );
 
-    final _queryParameters = <String, dynamic>{
-      r'code': encodeQueryParameter(_serializers, code, const FullType(String)),
-    };
-
     final _response = await _dio.request<Object>(
       _path,
       options: _options,
-      queryParameters: _queryParameters,
       cancelToken: cancelToken,
       onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress,
     );
 
-    Organizer _responseData;
-
-    try {
-      const _responseType = FullType(Organizer);
-      _responseData = _serializers.deserialize(
-        _response.data!,
-        specifiedType: _responseType,
-      ) as Organizer;
-
-    } catch (error, stackTrace) {
-      throw DioError(
-        requestOptions: _response.requestOptions,
-        response: _response,
-        type: DioErrorType.other,
-        error: error,
-      )..stackTrace = stackTrace;
-    }
-
-    return Response<Organizer>(
-      data: _responseData,
-      headers: _response.headers,
-      isRedirect: _response.isRedirect,
-      requestOptions: _response.requestOptions,
-      redirects: _response.redirects,
-      statusCode: _response.statusCode,
-      statusMessage: _response.statusMessage,
-      extra: _response.extra,
-    );
+    return _response;
   }
 
   /// Confirm orginizer account
@@ -150,6 +120,82 @@ class EventOrganizerApi {
     return _response;
   }
 
+  /// Get organizer account (my account)
+  /// 
+  ///
+  /// Parameters:
+  /// * [sessionToken] - session Token
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [Organizer] as data
+  /// Throws [DioError] if API call or serialization fails
+  Future<Response<Organizer>> getOrganizer({ 
+    required String sessionToken,
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/organizer';
+    final _options = Options(
+      method: r'GET',
+      headers: <String, dynamic>{
+        r'sessionToken': sessionToken,
+        ...?headers,
+      },
+      extra: <String, dynamic>{
+        'secure': <Map<String, String>>[],
+        ...?extra,
+      },
+      validateStatus: validateStatus,
+    );
+
+    final _response = await _dio.request<Object>(
+      _path,
+      options: _options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    Organizer _responseData;
+
+    try {
+      const _responseType = FullType(Organizer);
+      _responseData = _serializers.deserialize(
+        _response.data!,
+        specifiedType: _responseType,
+      ) as Organizer;
+
+    } catch (error, stackTrace) {
+      throw DioError(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioErrorType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<Organizer>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
+  }
+
   /// Logs organizer into the system
   /// 
   ///
@@ -179,6 +225,8 @@ class EventOrganizerApi {
     final _options = Options(
       method: r'GET',
       headers: <String, dynamic>{
+        r'email': email,
+        r'password': password,
         ...?headers,
       },
       extra: <String, dynamic>{
@@ -188,15 +236,9 @@ class EventOrganizerApi {
       validateStatus: validateStatus,
     );
 
-    final _queryParameters = <String, dynamic>{
-      r'email': encodeQueryParameter(_serializers, email, const FullType(String)),
-      r'password': encodeQueryParameter(_serializers, password, const FullType(String)),
-    };
-
     final _response = await _dio.request<Object>(
       _path,
       options: _options,
-      queryParameters: _queryParameters,
       cancelToken: cancelToken,
       onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress,
@@ -215,9 +257,10 @@ class EventOrganizerApi {
       throw DioError(
         requestOptions: _response.requestOptions,
         response: _response,
-        type: DioErrorType.other,
+        type: DioErrorType.unknown,
         error: error,
-      )..stackTrace = stackTrace;
+        stackTrace: stackTrace,
+      );
     }
 
     return Response<LoginOrganizer200Response>(
@@ -238,7 +281,7 @@ class EventOrganizerApi {
   /// Parameters:
   /// * [sessionToken] - session Token
   /// * [id] - id of Organizer
-  /// * [organizer] - Update an existent user in the store
+  /// * [organizerPatch] - Update an existent user in the store
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -251,7 +294,7 @@ class EventOrganizerApi {
   Future<Response<void>> patchOrganizer({ 
     required String sessionToken,
     required String id,
-    Organizer? organizer,
+    OrganizerPatch? organizerPatch,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -277,8 +320,8 @@ class EventOrganizerApi {
     dynamic _bodyData;
 
     try {
-      const _type = FullType(Organizer);
-      _bodyData = organizer == null ? null : _serializers.serialize(organizer, specifiedType: _type);
+      const _type = FullType(OrganizerPatch);
+      _bodyData = organizerPatch == null ? null : _serializers.serialize(organizerPatch, specifiedType: _type);
 
     } catch(error, stackTrace) {
       throw DioError(
@@ -286,9 +329,10 @@ class EventOrganizerApi {
           _dio.options,
           _path,
         ),
-        type: DioErrorType.other,
+        type: DioErrorType.unknown,
         error: error,
-      )..stackTrace = stackTrace;
+        stackTrace: stackTrace,
+      );
     }
 
     final _response = await _dio.request<Object>(
@@ -307,9 +351,7 @@ class EventOrganizerApi {
   /// 
   ///
   /// Parameters:
-  /// * [name] - name of Organizer
-  /// * [email] - email of Organizer
-  /// * [password] - password of Organizer
+  /// * [organizerForm] - Add event
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -320,9 +362,7 @@ class EventOrganizerApi {
   /// Returns a [Future] containing a [Response] with a [Organizer] as data
   /// Throws [DioError] if API call or serialization fails
   Future<Response<Organizer>> signUp({ 
-    required String name,
-    required String email,
-    required String password,
+    OrganizerForm? organizerForm,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -340,19 +380,32 @@ class EventOrganizerApi {
         'secure': <Map<String, String>>[],
         ...?extra,
       },
+      contentType: 'application/json',
       validateStatus: validateStatus,
     );
 
-    final _queryParameters = <String, dynamic>{
-      r'name': encodeQueryParameter(_serializers, name, const FullType(String)),
-      r'email': encodeQueryParameter(_serializers, email, const FullType(String)),
-      r'password': encodeQueryParameter(_serializers, password, const FullType(String)),
-    };
+    dynamic _bodyData;
+
+    try {
+      const _type = FullType(OrganizerForm);
+      _bodyData = organizerForm == null ? null : _serializers.serialize(organizerForm, specifiedType: _type);
+
+    } catch(error, stackTrace) {
+      throw DioError(
+         requestOptions: _options.compose(
+          _dio.options,
+          _path,
+        ),
+        type: DioErrorType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
 
     final _response = await _dio.request<Object>(
       _path,
+      data: _bodyData,
       options: _options,
-      queryParameters: _queryParameters,
       cancelToken: cancelToken,
       onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress,
@@ -371,9 +424,10 @@ class EventOrganizerApi {
       throw DioError(
         requestOptions: _response.requestOptions,
         response: _response,
-        type: DioErrorType.other,
+        type: DioErrorType.unknown,
         error: error,
-      )..stackTrace = stackTrace;
+        stackTrace: stackTrace,
+      );
     }
 
     return Response<Organizer>(
