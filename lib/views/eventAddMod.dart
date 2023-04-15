@@ -1,10 +1,12 @@
-import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
+import 'package:multi_select_flutter/bottom_sheet/multi_select_bottom_sheet_field.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
-import 'package:open_street_map_search_and_pick/open_street_map_search_and_pick.dart';
+import 'package:multi_select_flutter/util/multi_select_item.dart';
 import 'package:openapi/openapi.dart';
 import 'package:provider/provider.dart';
 import 'package:webfrontend_dionizos/api/Locaction/get_current_location.dart';
@@ -12,20 +14,25 @@ import 'package:webfrontend_dionizos/api/categories_controller.dart';
 import 'package:webfrontend_dionizos/api/events_controller.dart';
 import 'package:webfrontend_dionizos/views/organizer_panel/panel_navigation_bar.dart';
 import 'package:webfrontend_dionizos/widgets/centered_view.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:open_street_map_search_and_pick/open_street_map_search_and_pick.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:webfrontend_dionizos/views/add_category.dart';
 
-class EventDetailsView extends StatefulWidget {
-  final int eventId;
-  EventDetailsView(this.eventId);
+class EventAddMod extends StatefulWidget {
+  final int? eventId;
+
+  const EventAddMod({super.key, this.eventId});
   @override
-  State<EventDetailsView> createState() => _EventDetailsState();
+  State<EventAddMod> createState() => _EventAddModState();
 }
 
-class _EventDetailsState extends State<EventDetailsView> {
+class _EventAddModState extends State<EventAddMod> {
   bool isFirst = true;
-  late EventModel event;
+  EventModel event = EventModel.empty();
   final _formKey = GlobalKey<FormState>();
+  final _addCategoryForm = GlobalKey<FormState>();
 
   final _titleTextController = TextEditingController();
   final _nameTextController = TextEditingController();
@@ -34,8 +41,7 @@ class _EventDetailsState extends State<EventDetailsView> {
   final _endDateTextController = TextEditingController();
   final _locationTextController = TextEditingController();
   final _categoriesTextController = TextEditingController();
-  // List<Category> categories = [];
-  // List<Category> chosenCategories = [];
+  final _addCategoryTextController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -61,10 +67,14 @@ class _EventDetailsState extends State<EventDetailsView> {
   Widget eventDetails(EventsController eventsController,
       CategoriesController categoriesController) {
     return FutureBuilder<List<dynamic>>(
-        future: Future.wait([
-          eventsController.getEvent(widget.eventId),
-          categoriesController.getCategories()
-        ]),
+        future: widget.eventId != null
+            ? Future.wait([
+                categoriesController.getCategories(),
+                eventsController.getEvent(widget.eventId!),
+                setCurrentPosition()
+              ])
+            : Future.wait(
+                [categoriesController.getCategories(), setCurrentPosition()]),
         builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
           if (!snapshot.hasData) {
             return Expanded(
@@ -75,9 +85,9 @@ class _EventDetailsState extends State<EventDetailsView> {
               ),
             ));
           } else {
-            List<Category> categories = snapshot.data![1];
-            if (isFirst) {
-              event = snapshot.data![0];
+            List<Category> categories = snapshot.data![0];
+            if (isFirst && widget.eventId != null) {
+              event = snapshot.data![1];
               isFirst = false;
               _titleTextController.text = event.title;
               _nameTextController.text = event.name;
@@ -297,51 +307,82 @@ class _EventDetailsState extends State<EventDetailsView> {
                           ),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: FormField(
-                              builder: (FormFieldState state) =>
-                                  Column(children: [
-                                MultiSelectDialogField(
-                                  chipDisplay: MultiSelectChipDisplay(
-                                    items: categories
-                                        .map((e) => MultiSelectItem(e, e.name))
-                                        .toList(),
-                                    chipColor: Colors.green,
-                                    textStyle: TextStyle(color: Colors.white),
-                                  ),
-                                  buttonIcon: Icon(Icons.category),
-                                  buttonText: Text('Choose categories'),
-                                  initialValue: event.categories,
-                                  items: categories
-                                      .map((e) => MultiSelectItem(e, e.name))
-                                      .toList(),
-                                  listType: MultiSelectListType.CHIP,
-                                  onConfirm: (values) {
-                                    event.categories = values;
-                                    state.didChange(event.categories.length > 0
-                                        ? "changed"
-                                        : null);
-                                  },
-                                ),
-                                state.hasError
-                                    ? Text(
-                                        state.errorText!,
-                                        style: TextStyle(
-                                            color: Colors.red, fontSize: 12),
-                                      )
-                                    : Container()
-                              ]),
-                              validator: (value) {
-                                if (event.categories.length == 0) {
-                                  return 'Please choose at least one category';
-                                }
-                                return null;
-                              },
+                            child: Container(
+                              child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                        child: FormField(
+                                      builder: (FormFieldState state) =>
+                                          Column(children: [
+                                        MultiSelectDialogField(
+                                            decoration: BoxDecoration(
+                                              border: Border.all(),
+                                            ),
+                                            chipDisplay: MultiSelectChipDisplay(
+                                              items: categories
+                                                  .map((e) => MultiSelectItem(
+                                                      e, e.name))
+                                                  .toList(),
+                                              chipColor: Colors.green,
+                                              textStyle: TextStyle(
+                                                  color: Colors.white),
+                                            ),
+                                            buttonText:
+                                                Text('Choose categories'),
+                                            items: categories
+                                                .map((e) =>
+                                                    MultiSelectItem(e, e.name))
+                                                .toList(),
+                                            listType: MultiSelectListType.CHIP,
+                                            onConfirm: (values) {
+                                              event.categories = values;
+                                              state.didChange(
+                                                  event.categories.length > 0
+                                                      ? "changed"
+                                                      : null);
+                                            }),
+                                        state.hasError
+                                            ? Text(
+                                                state.errorText!,
+                                                style: TextStyle(
+                                                    color: Colors.red,
+                                                    fontSize: 12),
+                                              )
+                                            : Container()
+                                      ]),
+                                      validator: (value) {
+                                        if (value == null) {
+                                          return 'Please choose at least one category';
+                                        }
+                                        return null;
+                                      },
+                                    )),
+                                    TextButton(
+                                      onPressed: () async {
+                                        await addCategory(
+                                            context: context,
+                                            key: _addCategoryForm,
+                                            controller:
+                                                _addCategoryTextController,
+                                            categoriesController:
+                                                categoriesController);
+                                        setState(() {});
+                                      },
+                                      child: const Text(
+                                        'Add new category',
+                                        style: TextStyle(fontSize: 20),
+                                      ),
+                                    )
+                                  ]),
                             ),
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
-                              if (event.status == EventStatus.inFuture)
+                              if (event.status == EventStatus.inFuture ||
+                                  widget.eventId == null)
                                 TextButton(
                                   style: ButtonStyle(
                                     foregroundColor:
@@ -430,7 +471,9 @@ class _EventDetailsState extends State<EventDetailsView> {
                                       context.go('/organizerPanel');
                                     }
                                   },
-                                  child: const Text('Save changes'),
+                                  child: Text(widget.eventId != null
+                                      ? 'Save changes'
+                                      : 'Add'),
                                 ),
                               SizedBox(
                                 width: 20,
@@ -470,10 +513,11 @@ class _EventDetailsState extends State<EventDetailsView> {
         });
   }
 
-  List<Category> eventCategories(EventModel event) {
-    if (event.categories == null) {
-      return List<Category>.empty();
-    }
-    return event.categories.toList();
+  Future setCurrentPosition() async {
+    final response = await determinePosition().catchError((e) {
+      return LatLong(52, 21);
+    });
+    event.latitude = response.latitude;
+    event.longitude = response.longitude;
   }
 }

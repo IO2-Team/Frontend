@@ -61,7 +61,7 @@ class EventsListItem extends StatelessWidget {
 
   Widget categoriesList(List<Category> categories) {
     return MultiSelectChipDisplay(
-      items: categories.map((e) => MultiSelectItem(e, e.name!)).toList(),
+      items: categories.map((e) => MultiSelectItem(e, e.name)).toList(),
       chipColor: Colors.green,
       textStyle: TextStyle(color: Colors.white),
     );

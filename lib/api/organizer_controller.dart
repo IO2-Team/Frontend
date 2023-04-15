@@ -23,7 +23,10 @@ class OrganizerController extends ChangeNotifier {
       final logInResponse =
           await api.loginOrganizer(email: login, password: password);
       await _sessionTokenController.set(logInResponse.data!.sessionToken!);
-      _userNameContoller.set(login);
+      final userData = await api.getOrganizer(
+          sessionToken: logInResponse.data!.sessionToken!);
+
+      _userNameContoller.set(userData.data!.name);
 
       return true;
     } catch (e) {

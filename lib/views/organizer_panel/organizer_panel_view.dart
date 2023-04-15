@@ -32,19 +32,38 @@ class _OrganizerPanelViewState extends State<OrganizerPanelView> {
                   "Current Events:",
                   style: TextStyle(fontSize: 20),
                 ),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    context.go('/organizerPanel/addEvent');
-                  },
-                  icon: Icon(
-                    Icons.add,
-                    color: Colors.white,
-                  ),
-                  label: Text(
-                    "Create new Event",
-                    style: TextStyle(fontSize: 20, color: Colors.white),
-                  ),
-                  style: flatButtonStyle,
+                Row(
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () {},
+                      icon: Icon(
+                        Icons.add,
+                        color: Colors.white,
+                      ),
+                      label: Text(
+                        "Add new category",
+                        style: TextStyle(fontSize: 20, color: Colors.white),
+                      ),
+                      style: flatButtonStyle,
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        context.go('/organizerPanel/addEvent');
+                      },
+                      icon: Icon(
+                        Icons.add,
+                        color: Colors.white,
+                      ),
+                      label: Text(
+                        "Create new Event",
+                        style: TextStyle(fontSize: 20, color: Colors.white),
+                      ),
+                      style: flatButtonStyle,
+                    )
+                  ],
                 )
               ],
             ),
@@ -90,7 +109,6 @@ class _OrganizerPanelViewState extends State<OrganizerPanelView> {
                     return EventsListItem(
                       event: event,
                       onTap: () {
-                        //eventsController.setSelectedEvent(event);
                         context.go('/organizerPanel/eventDetails',
                             extra: event.id);
                       },

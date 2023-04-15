@@ -1,14 +1,14 @@
 import 'dart:html';
 
-class SessionTokenContoller {
+abstract class StorageController {
   final Storage _localStorage = window.localStorage;
-
-  Future set(String sessionToken) async {
-    _localStorage['sessionToken'] = sessionToken;
+  String get valueString;
+  set(String value) {
+    _localStorage[valueString] = value;
   }
 
-  Future<String> get() async {
-    String? token = _localStorage['sessionToken'];
+  String get() {
+    String? token = _localStorage[valueString];
     if (token == null) {
       throw Exception();
     }
@@ -16,18 +16,12 @@ class SessionTokenContoller {
   }
 }
 
-class UserNameContoller {
-  final Storage _localStorage = window.localStorage;
+class SessionTokenContoller extends StorageController {
+  @override
+  String get valueString => 'sessionToken';
+}
 
-  set(String userName) {
-    _localStorage['userName'] = userName;
-  }
-
-  String get() {
-    String? userName = _localStorage['userName'];
-    if (userName == null) {
-      throw Exception();
-    }
-    return userName;
-  }
+class UserNameContoller extends StorageController {
+  @override
+  String get valueString => 'userName';
 }

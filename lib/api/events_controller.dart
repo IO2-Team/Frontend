@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:built_collection/built_collection.dart';
 import 'package:flutter/foundation.dart' as found;
@@ -19,43 +20,50 @@ class EventsController extends found.ChangeNotifier {
   SessionTokenContoller _sessionTokenController = SessionTokenContoller();
 
   Future<EventModel> getEvent(int id) async {
-    String token = await _sessionTokenController.get();
     final eventResponse = await api.getEventById(id: id);
     EventWithPlaces event = eventResponse.data!;
     DateTime startTime =
-        DateTime.fromMillisecondsSinceEpoch(event.startTime! * 1000);
+        DateTime.fromMillisecondsSinceEpoch(event.startTime * 1000);
     DateTime endTime =
-        DateTime.fromMillisecondsSinceEpoch(event.endTime! * 1000);
+        DateTime.fromMillisecondsSinceEpoch(event.endTime * 1000);
     String addressName = await parseLocationName(
-        double.parse(event.latitude!), double.parse(event.longitude!));
+        double.parse(event.latitude), double.parse(event.longitude));
     return EventModel(
         event.id,
-        event.title!,
-        event.name!,
-        event.maxPlace!,
-        event.freePlace!,
+        event.title,
+        event.name,
+        event.maxPlace,
+        event.freePlace,
         startTime,
         endTime,
-        double.parse(event.latitude!),
-        double.parse(event.longitude!),
+        double.parse(event.latitude),
+        double.parse(event.longitude),
         addressName,
-        event.categories!.toList(),
-        event.placeSchema);
+        event.categories.toList(),
+        event.placeSchema,
+        event.places.toList(),
+        event.status);
   }
 
   Future<List<EventListItem>> getEvents() async {
-    String token = await _sessionTokenController.get();
+    String token = "";
+    try {
+      token = await _sessionTokenController.get();
+    } catch (e) {
+      print("ERR");
+    }
+    print(token);
     final eventsResponse = await api.getMyEvents(sessionToken: token);
     List<EventListItem> eventsList = [];
     for (var event in eventsResponse.data!.asList()) {
       DateTime startTime =
-          DateTime.fromMillisecondsSinceEpoch(event.startTime! * 1000);
+          DateTime.fromMillisecondsSinceEpoch(event.startTime * 1000);
       DateTime endTime =
-          DateTime.fromMillisecondsSinceEpoch(event.endTime! * 1000);
+          DateTime.fromMillisecondsSinceEpoch(event.endTime * 1000);
       String addressName = await parseLocationName(
-          double.parse(event.latitude!), double.parse(event.longitude!));
-      eventsList.add(EventListItem(event.id, event.title!, event.name!,
-          event.categories!.toList(), event.maxPlace!, event.freePlace!));
+          double.parse(event.latitude), double.parse(event.longitude));
+      eventsList.add(EventListItem(event.id, event.title, event.name,
+          event.categories.toList(), event.maxPlace, event.freePlace));
     }
     return eventsList;
   }
@@ -63,7 +71,7 @@ class EventsController extends found.ChangeNotifier {
   Future<bool> addEvent(
       {required String title,
       required String name,
-      required int freePlace,
+      required int maxPlace,
       required DateTime startTime,
       required DateTime endTime,
       required List<int> categories,
@@ -74,30 +82,55 @@ class EventsController extends found.ChangeNotifier {
     EventFormBuilder builder = EventFormBuilder();
     builder.title = title;
     builder.name = name;
-    builder.maxPlace = freePlace;
+    builder.maxPlace = maxPlace;
     builder.startTime = (startTime.millisecondsSinceEpoch / 1000).toInt();
     builder.endTime = (endTime.millisecondsSinceEpoch / 1000).toInt();
     builder.categoriesIds = ListBuilder<int>(categories);
     builder.latitude = latitude;
     builder.longitude = longitude;
     builder.placeSchema = placeSchema ?? "";
-    api.addEvent(sessionToken: token, eventForm: builder.build());
-    return true;
+    try {
+      await api.addEvent(sessionToken: token, eventForm: builder.build());
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
-  patchEvent(
+  Future<bool> patchEvent(
       {required int id,
       required String title,
       required String name,
       required int maxPlace,
       required DateTime startTime,
       required DateTime endTime,
-      required double latitude,
-      required double longitude,
-      required List<Category> categories,
-      String? schema}) async {
+      required String latitude,
+      required String longitude,
+      required List<int> categories,
+      String? placeSchema}) async {
     String token = await _sessionTokenController.get();
-    //api.patchEvent(sessionToken: token, id: event.id.toString(), event: event);
+    EventPatchBuilder builder = EventPatchBuilder();
+    builder.title = title;
+    builder.name = name;
+    builder.maxPlace = maxPlace;
+    builder.startTime = (startTime.millisecondsSinceEpoch / 1000).toInt();
+    builder.endTime = (endTime.millisecondsSinceEpoch / 1000).toInt();
+    builder.categoriesIds = ListBuilder<int>(categories);
+    builder.latitude = latitude;
+    builder.longitude = longitude;
+    builder.placeSchema = placeSchema ?? "";
+    EventPatch eventPatch;
+    try {
+      eventPatch = builder.build();
+    } catch (e) {}
+    try {
+      await api.patchEvent(
+          sessionToken: token, id: id.toString(), eventPatch: eventPatch);
+      return true;
+    } catch (e) {
+      print(e.toString());
+      return false;
+    }
   }
 }
 
@@ -114,18 +147,20 @@ class EventListItem {
 }
 
 class EventModel {
-  final int id;
-  final String title;
-  final String name;
-  final int maxPlace;
-  final int freePlace;
-  final DateTime startTime;
-  final DateTime endTime;
-  final double latitude;
-  final double longitude;
+  late int id;
+  late String title;
+  late String name;
+  late int maxPlace;
+  late int freePlace;
+  late DateTime startTime;
+  late DateTime endTime;
+  late double latitude;
+  late double longitude;
   late String addressName;
-  final List<Category> categories;
-  final String? placeSchema;
+  late List<Category> categories;
+  late String? placeSchema;
+  late List<Place> places;
+  late EventStatus status;
 
   EventModel(
       this.id,
@@ -139,7 +174,25 @@ class EventModel {
       this.longitude,
       this.addressName,
       this.categories,
-      this.placeSchema);
+      this.placeSchema,
+      this.places,
+      this.status);
+  EventModel.empty() {
+    id = -1;
+    title = "";
+    name = "";
+    maxPlace = -1;
+    freePlace = 0;
+    startTime = DateTime.now();
+    endTime = DateTime.now();
+    latitude = 0;
+    longitude = 0;
+    addressName = "";
+    categories = [];
+    placeSchema = null;
+    places = [];
+    status = EventStatus.done;
+  }
 }
 
 Future<String> parseLocationName(double lat, double lon) async {

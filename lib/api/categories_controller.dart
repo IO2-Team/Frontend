@@ -1,11 +1,10 @@
 import 'package:flutter/foundation.dart' as foundation;
 import 'package:openapi/openapi.dart';
 import 'package:dio/dio.dart';
+import 'package:webfrontend_dionizos/api/storage_controllers.dart';
 
 class CategoriesController extends foundation.ChangeNotifier {
-  CategoriesController() {
-    getCategories();
-  }
+  CategoriesController() {}
 
   CategoriesApi api = Openapi(
           dio: Dio(BaseOptions(
@@ -13,31 +12,20 @@ class CategoriesController extends foundation.ChangeNotifier {
           serializers: standardSerializers)
       .getCategoriesApi();
 
-  bool _loading = false;
-  List<Category> _categories = [];
-  Category? _selectedCategory;
+  SessionTokenContoller _sessionTokenController = SessionTokenContoller();
 
-  bool get loading => _loading;
-  List<Category> get categoriesList => _categories;
-  Category get selectedCategory => _selectedCategory!;
-
-  setLoading(bool loading) async {
-    _loading = loading;
-    notifyListeners();
-  }
-
-  setEventsList(List<Category> categories) {
-    _categories = categories;
-  }
-
-  getCategories() async {
-    setLoading(true);
+  Future<List<Category>> getCategories() async {
     final categoriesResponse = await api.getCategories();
-    setEventsList(categoriesResponse.data!.asList());
-    setLoading(false);
+    return categoriesResponse.data!.toList();
   }
 
-  setSelectedEvent(Category category) {
-    _selectedCategory = category;
+  Future<bool> addCategory(String name) async {
+    try {
+      await api.addCategories(
+          sessionToken: _sessionTokenController.get(), categoryName: name);
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 }

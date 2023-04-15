@@ -36,7 +36,7 @@ class _TestsViewState extends State<TestsView> {
                 ),
                 itemBuilder: ((context, index) {
                   return ListTile(
-                    title: Text(categories[index].name!),
+                    title: Text(categories[index].name),
                   );
                 })),
           ),
