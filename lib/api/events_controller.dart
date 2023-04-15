@@ -119,13 +119,9 @@ class EventsController extends found.ChangeNotifier {
     builder.latitude = latitude;
     builder.longitude = longitude;
     builder.placeSchema = placeSchema ?? "";
-    EventPatch eventPatch;
-    try {
-      eventPatch = builder.build();
-    } catch (e) {}
     try {
       await api.patchEvent(
-          sessionToken: token, id: id.toString(), eventPatch: eventPatch);
+          sessionToken: token, id: id.toString(), eventPatch: builder.build());
       return true;
     } catch (e) {
       print(e.toString());

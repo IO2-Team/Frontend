@@ -28,27 +28,16 @@ class _OrganizerPanelViewState extends State<OrganizerPanelView> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Text(
-                  "Current Events:",
-                  style: TextStyle(fontSize: 20),
-                ),
+                Container(
+                    padding: EdgeInsets.all(5),
+                    color: Colors.white,
+                    child: Text(
+                      "Your Events:",
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    )),
                 Row(
                   children: [
-                    ElevatedButton.icon(
-                      onPressed: () {},
-                      icon: Icon(
-                        Icons.add,
-                        color: Colors.white,
-                      ),
-                      label: Text(
-                        "Add new category",
-                        style: TextStyle(fontSize: 20, color: Colors.white),
-                      ),
-                      style: flatButtonStyle,
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
                     ElevatedButton.icon(
                       onPressed: () {
                         context.go('/organizerPanel/addEvent');

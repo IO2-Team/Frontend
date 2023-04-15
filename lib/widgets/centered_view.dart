@@ -8,6 +8,10 @@ class CenteredView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
+        decoration: BoxDecoration(
+            image: DecorationImage(
+                image: AssetImage("assets/images/back_pic.png"),
+                fit: BoxFit.cover)),
         padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 60),
         alignment: Alignment.center,
         child: ConstrainedBox(
