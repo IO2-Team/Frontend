@@ -13,10 +13,13 @@ class PanelNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    OrganizerController organizerController =
-        context.watch<OrganizerController>();
     UserNameContoller userNameContoller = UserNameContoller();
-    final userName = userNameContoller.get();
+    late String userName;
+    try {
+      userName = userNameContoller.get();
+    } catch (e) {
+      userName = "";
+    }
     return Container(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -26,7 +29,7 @@ class PanelNavigationBar extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Text(
-                userNameContoller.get(),
+                userName,
                 style: TextStyle(fontSize: 20),
               ),
               PopupMenuButton(
@@ -38,7 +41,10 @@ class PanelNavigationBar extends StatelessWidget {
                 iconSize: 40,
                 itemBuilder: (context) => [
                   PopupMenuItem(
-                      onTap: () => context.go('/'), child: Text('Sign out'))
+                      onTap: () => context.go('/'), child: Text('Sign out')),
+                  PopupMenuItem(
+                      onTap: () => SessionTokenContoller().set('asadasd'),
+                      child: Text('Session ended test'))
                 ],
               ),
             ],

@@ -23,7 +23,10 @@ class OrganizerController extends ChangeNotifier {
       final logInResponse =
           await api.loginOrganizer(email: login, password: password);
       await _sessionTokenController.set(logInResponse.data!.sessionToken!);
-      _userNameContoller.set(login);
+      final userData = await api.getOrganizer(
+          sessionToken: logInResponse.data!.sessionToken!);
+
+      _userNameContoller.set(userData.data!.name);
 
       return true;
     } catch (e) {
@@ -33,8 +36,11 @@ class OrganizerController extends ChangeNotifier {
 
   Future<bool> signUp(String username, String email, String password) async {
     try {
-      final signUpResponse =
-          await api.signUp(name: username, email: email, password: password);
+      OrganizerFormBuilder builder = OrganizerFormBuilder();
+      builder.name = username;
+      builder.email = email;
+      builder.password = password;
+      final signUpResponse = await api.signUp(organizerForm: builder.build());
       _userId = signUpResponse.data!.id;
       return true;
     } catch (e) {
@@ -51,4 +57,9 @@ class OrganizerController extends ChangeNotifier {
       return false;
     }
   }
+}
+
+signOut() {
+  SessionTokenContoller().clear();
+  UserNameContoller().clear();
 }

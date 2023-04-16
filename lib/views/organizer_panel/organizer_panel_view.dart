@@ -3,8 +3,10 @@ import 'package:go_router/go_router.dart';
 import 'package:openapi/openapi.dart';
 import 'package:provider/provider.dart';
 import 'package:webfrontend_dionizos/api/events_controller.dart';
+import 'package:webfrontend_dionizos/api/storage_controllers.dart';
 import 'package:webfrontend_dionizos/views/organizer_panel/event_list_item.dart';
 import 'package:webfrontend_dionizos/views/organizer_panel/panel_navigation_bar.dart';
+import 'package:webfrontend_dionizos/views/organizer_panel/session_ended.dart';
 import 'package:webfrontend_dionizos/widgets/centered_view.dart';
 
 class OrganizerPanelView extends StatefulWidget {
@@ -28,23 +30,31 @@ class _OrganizerPanelViewState extends State<OrganizerPanelView> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Text(
-                  "Current Events:",
-                  style: TextStyle(fontSize: 20),
-                ),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    context.go('/organizerPanel/addEvent');
-                  },
-                  icon: Icon(
-                    Icons.add,
+                Container(
+                    padding: EdgeInsets.all(5),
                     color: Colors.white,
-                  ),
-                  label: Text(
-                    "Create new Event",
-                    style: TextStyle(fontSize: 20, color: Colors.white),
-                  ),
-                  style: flatButtonStyle,
+                    child: Text(
+                      "Your Events:",
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    )),
+                Row(
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        context.go('/organizerPanel/addEvent');
+                      },
+                      icon: Icon(
+                        Icons.add,
+                        color: Colors.white,
+                      ),
+                      label: Text(
+                        "Create new Event",
+                        style: TextStyle(fontSize: 20, color: Colors.white),
+                      ),
+                      style: flatButtonStyle,
+                    )
+                  ],
                 )
               ],
             ),
@@ -59,10 +69,10 @@ class _OrganizerPanelViewState extends State<OrganizerPanelView> {
   }
 
   Widget eventsList(EventsController eventsController) {
-    return FutureBuilder<List<EventListItem>>(
+    return FutureBuilder<ResponseWithState>(
         future: eventsController.getEvents(),
-        builder: (BuildContext context,
-            AsyncSnapshot<List<EventListItem>> snapshot) {
+        builder:
+            (BuildContext context, AsyncSnapshot<ResponseWithState> snapshot) {
           if (!snapshot.hasData) {
             return Expanded(
                 child: Center(
@@ -72,10 +82,14 @@ class _OrganizerPanelViewState extends State<OrganizerPanelView> {
               ),
             ));
           } else {
-            List<EventListItem> eventsList = snapshot.data!;
+            ResponseWithState responseEvents = snapshot.data!;
+            if (responseEvents.status == ResponseCase.SESSION_ENDED) {
+              return sessionEnded(context);
+            }
+            List<EventListItem> eventsList = responseEvents.data;
             if (eventsList.isEmpty) {
               return Center(
-                child: Text(
+                child: const Text(
                   "You have no events yet. Click Create new Event to create your first event",
                   style: TextStyle(fontSize: 20),
                 ),
@@ -90,9 +104,8 @@ class _OrganizerPanelViewState extends State<OrganizerPanelView> {
                     return EventsListItem(
                       event: event,
                       onTap: () {
-                        //eventsController.setSelectedEvent(event);
-                        context.go('/organizerPanel/eventDetails',
-                            extra: event.id);
+                        PickedEventId().set(event.id.toString());
+                        context.go('/organizerPanel/eventDetails');
                       },
                     );
                   })),

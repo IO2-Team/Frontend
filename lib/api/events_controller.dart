@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:built_collection/built_collection.dart';
 import 'package:flutter/foundation.dart' as found;
@@ -6,6 +7,16 @@ import 'package:openapi/openapi.dart';
 import 'package:dio/dio.dart';
 import 'package:webfrontend_dionizos/api/storage_controllers.dart';
 import 'package:http/http.dart' as http;
+import 'package:webfrontend_dionizos/views/organizer_panel/session_ended.dart';
+
+enum ResponseCase { OK, FAILED, SESSION_ENDED }
+
+class ResponseWithState {
+  final dynamic data;
+  final ResponseCase status;
+
+  ResponseWithState(this.data, this.status);
+}
 
 class EventsController extends found.ChangeNotifier {
   EventsController() {}
@@ -18,93 +29,152 @@ class EventsController extends found.ChangeNotifier {
 
   SessionTokenContoller _sessionTokenController = SessionTokenContoller();
 
-  Future<EventModel> getEvent(int id) async {
-    String token = await _sessionTokenController.get();
-    final eventResponse = await api.getEventById(id: id);
-    Event event = eventResponse.data!;
-    DateTime startTime =
-        DateTime.fromMillisecondsSinceEpoch(event.startTime! * 1000);
-    DateTime endTime =
-        DateTime.fromMillisecondsSinceEpoch(event.endTime! * 1000);
-    String addressName = await parseLocationName(
-        double.parse(event.latitude!), double.parse(event.longitude!));
-    return EventModel(
-        event.id,
-        event.title!,
-        event.name!,
-        event.maxPlace!,
-        event.freePlace!,
-        startTime,
-        endTime,
-        double.parse(event.latitude!),
-        double.parse(event.longitude!),
-        addressName,
-        event.categories!.toList(),
-        event.placeSchema);
-  }
-
-  Future<List<EventListItem>> getEvents() async {
-    String token = await _sessionTokenController.get();
-    final eventsResponse = await api.getMyEvents(sessionToken: token);
-    List<EventListItem> eventsList = [];
-    for (var event in eventsResponse.data!.asList()) {
+  Future<ResponseWithState> getEvent(int id) async {
+    try {
+      final eventResponse = await api.getEventById(id: id);
+      EventWithPlaces event = eventResponse.data!;
       DateTime startTime =
-          DateTime.fromMillisecondsSinceEpoch(event.startTime! * 1000);
+          DateTime.fromMillisecondsSinceEpoch(event.startTime * 1000);
       DateTime endTime =
-          DateTime.fromMillisecondsSinceEpoch(event.endTime! * 1000);
+          DateTime.fromMillisecondsSinceEpoch(event.endTime * 1000);
       String addressName = await parseLocationName(
-          double.parse(event.latitude!), double.parse(event.longitude!));
-      eventsList.add(EventListItem(event.id, event.title!, event.name!,
-          event.categories!.toList(), event.maxPlace!, event.freePlace!));
+          double.parse(event.latitude), double.parse(event.longitude));
+      return ResponseWithState(
+          EventModel(
+              event.id,
+              event.title,
+              event.name,
+              event.maxPlace,
+              event.freePlace,
+              startTime,
+              endTime,
+              double.parse(event.latitude),
+              double.parse(event.longitude),
+              addressName,
+              event.categories.toList(),
+              event.placeSchema,
+              event.places.toList(),
+              event.status),
+          ResponseCase.OK);
+    } on DioError catch (e) {
+      if (e.response!.statusCode == 403)
+        return ResponseWithState(null, ResponseCase.SESSION_ENDED);
+      return ResponseWithState(null, ResponseCase.FAILED);
     }
-    return eventsList;
   }
 
-  Future<bool> addEvent(
+  Future<ResponseWithState> getEvents() async {
+    String token = "";
+    try {
+      token = await _sessionTokenController.get();
+    } catch (e) {
+      print(e.toString());
+      return ResponseWithState([], ResponseCase.SESSION_ENDED);
+    }
+    try {
+      final eventsResponse = await api.getMyEvents(sessionToken: token);
+      List<EventListItem> eventsList = [];
+      for (var event in eventsResponse.data!.asList()) {
+        DateTime startTime =
+            DateTime.fromMillisecondsSinceEpoch(event.startTime * 1000);
+        DateTime endTime =
+            DateTime.fromMillisecondsSinceEpoch(event.endTime * 1000);
+        String addressName = await parseLocationName(
+            double.parse(event.latitude), double.parse(event.longitude));
+        eventsList.add(EventListItem(
+            event.id,
+            event.title,
+            event.name,
+            event.categories.toList(),
+            event.maxPlace,
+            event.freePlace,
+            event.status == EventStatus.inFuture ? true : false));
+      }
+      return ResponseWithState(eventsList, ResponseCase.OK);
+    } on DioError catch (e) {
+      if (e.response!.statusCode == 403)
+        return ResponseWithState(null, ResponseCase.SESSION_ENDED);
+      return ResponseWithState(null, ResponseCase.FAILED);
+    }
+  }
+
+  Future<ResponseCase> addEvent(
       {required String title,
       required String name,
-      required int freePlace,
+      required int maxPlace,
       required DateTime startTime,
       required DateTime endTime,
-      required double latitude,
-      required double longitude,
-      required List<Category> categories,
-      String? schema}) async {
-    String token = await _sessionTokenController.get();
+      required List<int> categories,
+      required String latitude,
+      required String longitude,
+      String? placeSchema}) async {
+    String token = "";
     try {
-      final response = await api.addEvent(
-          sessionToken: token,
-          title: title,
-          name: name,
-          freePlace: freePlace,
-          startTime: (startTime.millisecondsSinceEpoch / 1000).toInt(),
-          endTime: (endTime.millisecondsSinceEpoch / 1000).toInt(),
-          longitude: longitude.toString(),
-          latitude: latitude.toString(),
-          categories:
-              BuiltList<int>.from(categories.map((e) => e.id!).toList()));
-
-      if (response.statusCode == 200)
-        return true;
-      else
-        return false;
+      token = await _sessionTokenController.get();
     } catch (e) {
-      return false;
+      print(e.toString());
+      return ResponseCase.SESSION_ENDED;
+    }
+    EventFormBuilder builder = EventFormBuilder();
+    builder.title = title;
+    builder.name = name;
+    builder.maxPlace = maxPlace;
+    builder.startTime = (startTime.millisecondsSinceEpoch / 1000).toInt();
+    builder.endTime = (endTime.millisecondsSinceEpoch / 1000).toInt();
+    builder.categoriesIds = ListBuilder<int>(categories);
+    builder.latitude = latitude;
+    builder.longitude = longitude;
+    builder.placeSchema = placeSchema ?? "";
+    try {
+      final response =
+          await api.addEvent(sessionToken: token, eventForm: builder.build());
+      return ResponseCase.OK;
+    } on DioError catch (e) {
+      if (e.response!.statusCode == 403) {
+        return ResponseCase.SESSION_ENDED;
+      }
+      return ResponseCase.FAILED;
     }
   }
 
-  patchEvent(
+  Future<ResponseCase> patchEvent(
       {required int id,
       required String title,
       required String name,
       required int maxPlace,
       required DateTime startTime,
       required DateTime endTime,
-      required double latitude,
-      required double longitude,
-      required List<Category> categories,
-      String? schema}) async {
-    String token = await _sessionTokenController.get();
+      required String latitude,
+      required String longitude,
+      required List<int> categories,
+      String? placeSchema}) async {
+    String token = "";
+    try {
+      token = await _sessionTokenController.get();
+    } catch (e) {
+      print(e.toString());
+      return ResponseCase.SESSION_ENDED;
+    }
+    EventPatchBuilder builder = EventPatchBuilder();
+    builder.title = title;
+    builder.name = name;
+    builder.maxPlace = maxPlace;
+    builder.startTime = (startTime.millisecondsSinceEpoch / 1000).toInt();
+    builder.endTime = (endTime.millisecondsSinceEpoch / 1000).toInt();
+    builder.categoriesIds = ListBuilder<int>(categories);
+    builder.latitude = latitude;
+    builder.longitude = longitude;
+    builder.placeSchema = placeSchema ?? "";
+    try {
+      final response = await api.patchEvent(
+          sessionToken: token, id: id.toString(), eventPatch: builder.build());
+      return ResponseCase.OK;
+    } on DioError catch (e) {
+      if (e.response!.statusCode == 403) {
+        return ResponseCase.SESSION_ENDED;
+      }
+      return ResponseCase.FAILED;
+    }
   }
 }
 
@@ -115,24 +185,27 @@ class EventListItem {
   final int maxPlace;
   final int freePlace;
   final List<Category> categories;
+  final bool isValid;
 
   EventListItem(this.id, this.title, this.name, this.categories, this.maxPlace,
-      this.freePlace);
+      this.freePlace, this.isValid);
 }
 
 class EventModel {
-  final int id;
-  final String title;
-  final String name;
-  final int maxPlace;
-  final int freePlace;
-  final DateTime startTime;
-  final DateTime endTime;
-  final double latitude;
-  final double longitude;
+  late int id;
+  late String title;
+  late String name;
+  late int maxPlace;
+  late int freePlace;
+  late DateTime startTime;
+  late DateTime endTime;
+  late double latitude;
+  late double longitude;
   late String addressName;
-  final List<Category> categories;
-  final String? placeSchema;
+  late List<Category> categories;
+  late String? placeSchema;
+  late List<Place> places;
+  late EventStatus status;
 
   EventModel(
       this.id,
@@ -146,7 +219,25 @@ class EventModel {
       this.longitude,
       this.addressName,
       this.categories,
-      this.placeSchema);
+      this.placeSchema,
+      this.places,
+      this.status);
+  EventModel.empty() {
+    id = -1;
+    title = "";
+    name = "";
+    maxPlace = -1;
+    freePlace = 0;
+    startTime = DateTime.now();
+    endTime = DateTime.now();
+    latitude = 0;
+    longitude = 0;
+    addressName = "";
+    categories = [];
+    placeSchema = null;
+    places = [];
+    status = EventStatus.done;
+  }
 }
 
 Future<String> parseLocationName(double lat, double lon) async {
