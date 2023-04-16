@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:multi_select_flutter/bottom_sheet/multi_select_bottom_sheet_field.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:multi_select_flutter/util/multi_select_item.dart';
@@ -13,6 +15,7 @@ import 'package:webfrontend_dionizos/api/Locaction/get_current_location.dart';
 import 'package:webfrontend_dionizos/api/categories_controller.dart';
 import 'package:webfrontend_dionizos/api/events_controller.dart';
 import 'package:webfrontend_dionizos/views/organizer_panel/panel_navigation_bar.dart';
+import 'package:webfrontend_dionizos/views/organizer_panel/session_ended.dart';
 import 'package:webfrontend_dionizos/widgets/centered_view.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:open_street_map_search_and_pick/open_street_map_search_and_pick.dart';
@@ -42,6 +45,8 @@ class _EventAddModState extends State<EventAddMod> {
   final _locationTextController = TextEditingController();
   final _categoriesTextController = TextEditingController();
   final _addCategoryTextController = TextEditingController();
+  final _imagePicker = ImagePicker();
+  Uint8List imageFile = Uint8List(0);
 
   @override
   Widget build(BuildContext context) {
@@ -66,15 +71,14 @@ class _EventAddModState extends State<EventAddMod> {
 
   Widget eventDetails(EventsController eventsController,
       CategoriesController categoriesController) {
+    setCurrentPosition();
     return FutureBuilder<List<dynamic>>(
         future: widget.eventId != null
             ? Future.wait([
                 categoriesController.getCategories(),
                 eventsController.getEvent(widget.eventId!),
-                setCurrentPosition()
               ])
-            : Future.wait(
-                [categoriesController.getCategories(), setCurrentPosition()]),
+            : Future.wait([categoriesController.getCategories()]),
         builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
           if (!snapshot.hasData) {
             return Expanded(
@@ -87,7 +91,11 @@ class _EventAddModState extends State<EventAddMod> {
           } else {
             List<Category> categories = snapshot.data![0];
             if (isFirst && widget.eventId != null) {
-              event = snapshot.data![1];
+              ResponseWithState eventResponse = snapshot.data![1];
+              if (eventResponse.status == ResponseCase.SESSION_ENDED) {
+                return sessionEnded(context);
+              }
+              event = eventResponse.data;
               isFirst = false;
               _titleTextController.text = event.title;
               _nameTextController.text = event.name;
@@ -97,6 +105,8 @@ class _EventAddModState extends State<EventAddMod> {
               _endDateTextController.text =
                   DateFormat('yyyy-MM-dd HH:mm').format(event.endTime);
               _locationTextController.text = event.addressName;
+              if (event.placeSchema != null && event.placeSchema != "")
+                imageFile = base64.decode(event.placeSchema!);
             }
             return Expanded(
               child: ListView(
@@ -331,6 +341,7 @@ class _EventAddModState extends State<EventAddMod> {
                                             ),
                                             buttonText:
                                                 Text('Choose categories'),
+                                            initialValue: event.categories,
                                             items: categories
                                                 .map((e) =>
                                                     MultiSelectItem(e, e.name))
@@ -353,7 +364,7 @@ class _EventAddModState extends State<EventAddMod> {
                                             : Container()
                                       ]),
                                       validator: (value) {
-                                        if (value == null) {
+                                        if (event.categories.length == 0) {
                                           return 'Please choose at least one category';
                                         }
                                         return null;
@@ -377,6 +388,37 @@ class _EventAddModState extends State<EventAddMod> {
                                     )
                                   ]),
                             ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Align(
+                                alignment: Alignment.topLeft,
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      TextButton(
+                                        child: const Text(
+                                            'Pick place schema (Optional)'),
+                                        onPressed: () async {
+                                          XFile? f =
+                                              await _imagePicker.pickImage(
+                                                  source: ImageSource.gallery);
+                                          if (f != null) {
+                                            imageFile = await f.readAsBytes();
+                                          }
+                                          setState(() {});
+                                        },
+                                      ),
+                                      imageFile.length == 0
+                                          ? Container()
+                                          : SizedBox(
+                                              //height: 400,
+                                              child: Image.memory(
+                                              imageFile,
+                                              fit: BoxFit.fill,
+                                            ))
+                                    ])),
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
@@ -432,8 +474,8 @@ class _EventAddModState extends State<EventAddMod> {
                                               ),
                                             );
                                           });
-                                      final result =
-                                          await eventsController.patchEvent(
+                                      final result = widget.eventId != null
+                                          ? await eventsController.patchEvent(
                                               id: event.id,
                                               title: _titleTextController.text,
                                               name: _nameTextController.text,
@@ -449,15 +491,32 @@ class _EventAddModState extends State<EventAddMod> {
                                                   .toStringAsFixed(7),
                                               categories: event.categories
                                                   .map((e) => e.id)
-                                                  .toList());
+                                                  .toList(),
+                                              placeSchema: imageFile.length == 0
+                                                  ? ""
+                                                  : base64.encode(imageFile))
+                                          : await eventsController.addEvent(
+                                              title: _titleTextController.text,
+                                              name: _nameTextController.text,
+                                              maxPlace: int.parse(
+                                                  _freePlacesNumberController
+                                                      .text),
+                                              startTime: event.startTime.toUtc(),
+                                              endTime: event.endTime.toUtc(),
+                                              latitude: event.latitude.toStringAsFixed(7),
+                                              longitude: event.longitude.toStringAsFixed(7),
+                                              categories: event.categories.map((e) => e.id).toList(),
+                                              placeSchema: imageFile.length == 0 ? "" : base64.encode(imageFile));
 
                                       if (result == false) {
                                         context.pop();
                                         await showDialog(
                                             context: context,
                                             builder: (context) => AlertDialog(
-                                                  title: const Text(
-                                                      'Something went wrong. Your event cannot be patched now'),
+                                                  title: Text(widget.eventId !=
+                                                          null
+                                                      ? 'Something went wrong. Your event cannot be patched now'
+                                                      : 'Something went wrong. Your event cannot be added now'),
                                                   actions: <Widget>[
                                                     TextButton(
                                                       onPressed: () {

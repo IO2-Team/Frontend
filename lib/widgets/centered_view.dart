@@ -14,10 +14,16 @@ class CenteredView extends StatelessWidget {
                 fit: BoxFit.cover)),
         padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 60),
         alignment: Alignment.center,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: 1200),
-          child: child,
-        ),
+        child: Container(
+            decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.all(Radius.circular(10))),
+            child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: 1200),
+                  child: child,
+                ))),
       ),
     );
   }

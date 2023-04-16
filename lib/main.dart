@@ -52,8 +52,7 @@ final GoRouter _router = GoRouter(
               GoRoute(
                 path: 'eventDetails',
                 builder: (BuildContext context, GoRouterState state) {
-                  int eventId = state.extra as int;
-                  return EventDetailsView(eventId);
+                  return EventDetailsView();
                 },
               ),
               GoRoute(

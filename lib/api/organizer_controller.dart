@@ -58,3 +58,8 @@ class OrganizerController extends ChangeNotifier {
     }
   }
 }
+
+signOut() {
+  SessionTokenContoller().clear();
+  UserNameContoller().clear();
+}

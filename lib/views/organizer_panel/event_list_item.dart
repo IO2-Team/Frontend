@@ -19,7 +19,7 @@ class EventsListItem extends StatelessWidget {
         decoration: BoxDecoration(
           border: Border.all(width: 1),
           borderRadius: BorderRadius.all(Radius.circular(5.0)),
-          color: Colors.white,
+          color: event.isValid ? Colors.white : Colors.grey,
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(

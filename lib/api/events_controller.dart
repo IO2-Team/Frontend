@@ -7,6 +7,16 @@ import 'package:openapi/openapi.dart';
 import 'package:dio/dio.dart';
 import 'package:webfrontend_dionizos/api/storage_controllers.dart';
 import 'package:http/http.dart' as http;
+import 'package:webfrontend_dionizos/views/organizer_panel/session_ended.dart';
+
+enum ResponseCase { OK, FAILED, SESSION_ENDED }
+
+class ResponseWithState {
+  final dynamic data;
+  final ResponseCase status;
+
+  ResponseWithState(this.data, this.status);
+}
 
 class EventsController extends found.ChangeNotifier {
   EventsController() {}
@@ -19,56 +29,76 @@ class EventsController extends found.ChangeNotifier {
 
   SessionTokenContoller _sessionTokenController = SessionTokenContoller();
 
-  Future<EventModel> getEvent(int id) async {
-    final eventResponse = await api.getEventById(id: id);
-    EventWithPlaces event = eventResponse.data!;
-    DateTime startTime =
-        DateTime.fromMillisecondsSinceEpoch(event.startTime * 1000);
-    DateTime endTime =
-        DateTime.fromMillisecondsSinceEpoch(event.endTime * 1000);
-    String addressName = await parseLocationName(
-        double.parse(event.latitude), double.parse(event.longitude));
-    return EventModel(
-        event.id,
-        event.title,
-        event.name,
-        event.maxPlace,
-        event.freePlace,
-        startTime,
-        endTime,
-        double.parse(event.latitude),
-        double.parse(event.longitude),
-        addressName,
-        event.categories.toList(),
-        event.placeSchema,
-        event.places.toList(),
-        event.status);
-  }
-
-  Future<List<EventListItem>> getEvents() async {
-    String token = "";
+  Future<ResponseWithState> getEvent(int id) async {
     try {
-      token = await _sessionTokenController.get();
-    } catch (e) {
-      print("ERR");
-    }
-    print(token);
-    final eventsResponse = await api.getMyEvents(sessionToken: token);
-    List<EventListItem> eventsList = [];
-    for (var event in eventsResponse.data!.asList()) {
+      final eventResponse = await api.getEventById(id: id);
+      EventWithPlaces event = eventResponse.data!;
       DateTime startTime =
           DateTime.fromMillisecondsSinceEpoch(event.startTime * 1000);
       DateTime endTime =
           DateTime.fromMillisecondsSinceEpoch(event.endTime * 1000);
       String addressName = await parseLocationName(
           double.parse(event.latitude), double.parse(event.longitude));
-      eventsList.add(EventListItem(event.id, event.title, event.name,
-          event.categories.toList(), event.maxPlace, event.freePlace));
+      return ResponseWithState(
+          EventModel(
+              event.id,
+              event.title,
+              event.name,
+              event.maxPlace,
+              event.freePlace,
+              startTime,
+              endTime,
+              double.parse(event.latitude),
+              double.parse(event.longitude),
+              addressName,
+              event.categories.toList(),
+              event.placeSchema,
+              event.places.toList(),
+              event.status),
+          ResponseCase.OK);
+    } on DioError catch (e) {
+      if (e.response!.statusCode == 403)
+        return ResponseWithState(null, ResponseCase.SESSION_ENDED);
+      return ResponseWithState(null, ResponseCase.FAILED);
     }
-    return eventsList;
   }
 
-  Future<bool> addEvent(
+  Future<ResponseWithState> getEvents() async {
+    String token = "";
+    try {
+      token = await _sessionTokenController.get();
+    } catch (e) {
+      print(e.toString());
+      return ResponseWithState([], ResponseCase.SESSION_ENDED);
+    }
+    try {
+      final eventsResponse = await api.getMyEvents(sessionToken: token);
+      List<EventListItem> eventsList = [];
+      for (var event in eventsResponse.data!.asList()) {
+        DateTime startTime =
+            DateTime.fromMillisecondsSinceEpoch(event.startTime * 1000);
+        DateTime endTime =
+            DateTime.fromMillisecondsSinceEpoch(event.endTime * 1000);
+        String addressName = await parseLocationName(
+            double.parse(event.latitude), double.parse(event.longitude));
+        eventsList.add(EventListItem(
+            event.id,
+            event.title,
+            event.name,
+            event.categories.toList(),
+            event.maxPlace,
+            event.freePlace,
+            event.status == EventStatus.inFuture ? true : false));
+      }
+      return ResponseWithState(eventsList, ResponseCase.OK);
+    } on DioError catch (e) {
+      if (e.response!.statusCode == 403)
+        return ResponseWithState(null, ResponseCase.SESSION_ENDED);
+      return ResponseWithState(null, ResponseCase.FAILED);
+    }
+  }
+
+  Future<ResponseCase> addEvent(
       {required String title,
       required String name,
       required int maxPlace,
@@ -78,7 +108,13 @@ class EventsController extends found.ChangeNotifier {
       required String latitude,
       required String longitude,
       String? placeSchema}) async {
-    String token = await _sessionTokenController.get();
+    String token = "";
+    try {
+      token = await _sessionTokenController.get();
+    } catch (e) {
+      print(e.toString());
+      return ResponseCase.SESSION_ENDED;
+    }
     EventFormBuilder builder = EventFormBuilder();
     builder.title = title;
     builder.name = name;
@@ -90,14 +126,18 @@ class EventsController extends found.ChangeNotifier {
     builder.longitude = longitude;
     builder.placeSchema = placeSchema ?? "";
     try {
-      await api.addEvent(sessionToken: token, eventForm: builder.build());
-      return true;
-    } catch (e) {
-      return false;
+      final response =
+          await api.addEvent(sessionToken: token, eventForm: builder.build());
+      return ResponseCase.OK;
+    } on DioError catch (e) {
+      if (e.response!.statusCode == 403) {
+        return ResponseCase.SESSION_ENDED;
+      }
+      return ResponseCase.FAILED;
     }
   }
 
-  Future<bool> patchEvent(
+  Future<ResponseCase> patchEvent(
       {required int id,
       required String title,
       required String name,
@@ -108,7 +148,13 @@ class EventsController extends found.ChangeNotifier {
       required String longitude,
       required List<int> categories,
       String? placeSchema}) async {
-    String token = await _sessionTokenController.get();
+    String token = "";
+    try {
+      token = await _sessionTokenController.get();
+    } catch (e) {
+      print(e.toString());
+      return ResponseCase.SESSION_ENDED;
+    }
     EventPatchBuilder builder = EventPatchBuilder();
     builder.title = title;
     builder.name = name;
@@ -120,12 +166,14 @@ class EventsController extends found.ChangeNotifier {
     builder.longitude = longitude;
     builder.placeSchema = placeSchema ?? "";
     try {
-      await api.patchEvent(
+      final response = await api.patchEvent(
           sessionToken: token, id: id.toString(), eventPatch: builder.build());
-      return true;
-    } catch (e) {
-      print(e.toString());
-      return false;
+      return ResponseCase.OK;
+    } on DioError catch (e) {
+      if (e.response!.statusCode == 403) {
+        return ResponseCase.SESSION_ENDED;
+      }
+      return ResponseCase.FAILED;
     }
   }
 }
@@ -137,9 +185,10 @@ class EventListItem {
   final int maxPlace;
   final int freePlace;
   final List<Category> categories;
+  final bool isValid;
 
   EventListItem(this.id, this.title, this.name, this.categories, this.maxPlace,
-      this.freePlace);
+      this.freePlace, this.isValid);
 }
 
 class EventModel {

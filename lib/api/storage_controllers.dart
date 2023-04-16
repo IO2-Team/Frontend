@@ -14,6 +14,10 @@ abstract class StorageController {
     }
     return token;
   }
+
+  clear() {
+    _localStorage.clear();
+  }
 }
 
 class SessionTokenContoller extends StorageController {
@@ -24,4 +28,9 @@ class SessionTokenContoller extends StorageController {
 class UserNameContoller extends StorageController {
   @override
   String get valueString => 'userName';
+}
+
+class PickedEventId extends StorageController {
+  @override
+  String get valueString => ' pickedId';
 }
