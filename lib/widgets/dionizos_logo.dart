@@ -3,16 +3,21 @@ import 'package:go_router/go_router.dart';
 import 'package:webfrontend_dionizos/widgets/gradient_text.dart';
 
 class DionizosLogo extends StatelessWidget {
+  final String path;
+
+  const DionizosLogo({super.key, required this.path});
+
   @override
   Widget build(BuildContext context) {
     return TextButton(
-      onPressed: () => context.go('/organizerPanel'),
-      child: GradientText(
-        'Dionizos',
-        style: TextStyle(fontSize: 35),
-        gradient: LinearGradient(
-          colors: [Colors.green.shade400, Colors.green.shade900],
-        ),
+      onPressed: () => context.go(path),
+      child: Container(
+        width: 300,
+        height: 200,
+        decoration: BoxDecoration(
+            image: DecorationImage(
+                image: AssetImage('assets/images/dionizos_logo.png'),
+                fit: BoxFit.fill)),
       ),
     );
   }

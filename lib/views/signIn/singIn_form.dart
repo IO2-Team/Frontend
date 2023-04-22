@@ -39,6 +39,7 @@ class _SignUpFormState extends State<SignInForm> {
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextFormField(
+                          key: Key("signIn_email"),
                           controller: _usernameTextController,
                           decoration: const InputDecoration(
                               icon: Icon(Icons.person),
@@ -57,6 +58,7 @@ class _SignUpFormState extends State<SignInForm> {
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextFormField(
+                          key: Key('signIn_password'),
                           controller: _passwordTextController,
                           obscureText: true,
                           obscuringCharacter: '*',
@@ -77,39 +79,40 @@ class _SignUpFormState extends State<SignInForm> {
                         ),
                       ),
                       TextButton(
+                        key: Key('signIn_button'),
                         style: TextButton.styleFrom(
                             foregroundColor: Colors.white,
                             backgroundColor: Colors.green,
                             padding: EdgeInsets.all(15)),
                         onPressed: () async {
                           _isLogInFailed = false;
-                          showDialog(
-                              // The user CANNOT close this dialog  by pressing outsite it
-                              barrierDismissible: false,
-                              context: context,
-                              builder: (_) {
-                                return Dialog(
-                                  // The background color
-                                  backgroundColor: Colors.white,
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 20),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: const [
-                                        // The loading indicator
-                                        CircularProgressIndicator(),
-                                        SizedBox(
-                                          height: 15,
-                                        ),
-                                        // Some text
-                                        Text('Loading...')
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              });
                           if (_formKey.currentState!.validate()) {
+                            showDialog(
+                                // The user CANNOT close this dialog  by pressing outsite it
+                                barrierDismissible: false,
+                                context: context,
+                                builder: (_) {
+                                  return Dialog(
+                                    // The background color
+                                    backgroundColor: Colors.white,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 20),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: const [
+                                          // The loading indicator
+                                          CircularProgressIndicator(),
+                                          SizedBox(
+                                            height: 15,
+                                          ),
+                                          // Some text
+                                          Text('Loading...')
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                });
                             if (await organizerController.logIn(
                                 _usernameTextController.text,
                                 _passwordTextController.text)) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:webfrontend_dionizos/widgets/dionizos_logo.dart';
 import 'dart:ui' as ui;
 
 import 'package:webfrontend_dionizos/widgets/gradient_text.dart';
@@ -13,15 +14,8 @@ class HomeNavigationBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          TextButton(
-            onPressed: () => context.go('/'),
-            child: GradientText(
-              'Dionizos',
-              style: TextStyle(fontSize: 35),
-              gradient: LinearGradient(
-                colors: [Colors.green.shade400, Colors.green.shade900],
-              ),
-            ),
+          DionizosLogo(
+            path: '/',
           ),
           Row(
             mainAxisSize: MainAxisSize.min,

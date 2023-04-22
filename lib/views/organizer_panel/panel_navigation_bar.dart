@@ -24,7 +24,7 @@ class PanelNavigationBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          DionizosLogo(),
+          DionizosLogo(path: '/organizerPanel'),
           Row(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
