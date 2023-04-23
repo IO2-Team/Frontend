@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:webfrontend_dionizos/widgets/dionizos_logo.dart';
-import 'dart:ui' as ui;
-
-import 'package:webfrontend_dionizos/widgets/gradient_text.dart';
 
 class HomeNavigationBar extends StatelessWidget {
   const HomeNavigationBar({Key? key}) : super(key: key);

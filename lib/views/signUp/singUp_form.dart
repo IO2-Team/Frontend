@@ -1,11 +1,7 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:go_router/go_router.dart';
-import 'package:openapi/openapi.dart';
 import 'package:provider/provider.dart';
-import 'package:webfrontend_dionizos/api/api_provider.dart';
 import 'package:webfrontend_dionizos/api/organizer_controller.dart';
 
 class SignUpForm extends StatefulWidget {

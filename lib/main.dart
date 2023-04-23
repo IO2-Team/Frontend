@@ -1,19 +1,16 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:openapi/openapi.dart';
 import 'package:provider/provider.dart';
-import 'package:webfrontend_dionizos/api/api_provider.dart';
 import 'package:webfrontend_dionizos/api/categories_controller.dart';
 import 'package:webfrontend_dionizos/api/events_controller.dart';
 import 'package:webfrontend_dionizos/api/organizer_controller.dart';
+import 'package:webfrontend_dionizos/views/account/account_view.dart';
 import 'package:webfrontend_dionizos/views/home/home_view.dart';
 import 'package:webfrontend_dionizos/views/organizer_panel/event_creation_view.dart';
 import 'package:webfrontend_dionizos/views/organizer_panel/event_details_view.dart';
 import 'package:webfrontend_dionizos/views/organizer_panel/organizer_panel_view.dart';
 import 'package:webfrontend_dionizos/views/signIn/signIn_view.dart';
 import 'package:webfrontend_dionizos/views/signUp/signup_view.dart';
-import 'package:webfrontend_dionizos/views/tests/tests_view.dart';
 
 void main() => runApp(
     // ChangeNotifierProvider<APIProvider>(
@@ -61,6 +58,12 @@ final GoRouter _router = GoRouter(
                   return EventCreationView();
                 },
               ),
+              GoRoute(
+                path: 'account',
+                builder: (BuildContext context, GoRouterState state) {
+                  return AccountView();
+                },
+              ),
             ]),
       ],
     ),
@@ -72,7 +75,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<APIProvider>(create: (_) => APIProvider()),
         ChangeNotifierProvider(create: (_) => EventsController()),
         ChangeNotifierProvider(create: (_) => CategoriesController()),
         ChangeNotifierProvider(create: (_) => OrganizerController())

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:openapi/openapi.dart';
 import 'package:provider/provider.dart';
 import 'package:webfrontend_dionizos/api/events_controller.dart';
 import 'package:webfrontend_dionizos/api/storage_controllers.dart';
@@ -32,7 +31,6 @@ class _OrganizerPanelViewState extends State<OrganizerPanelView> {
               children: <Widget>[
                 Container(
                     padding: EdgeInsets.all(5),
-                    color: Colors.white,
                     child: Text(
                       "Your Events:",
                       style:

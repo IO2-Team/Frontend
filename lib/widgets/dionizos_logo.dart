@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:webfrontend_dionizos/widgets/gradient_text.dart';
 
 class DionizosLogo extends StatelessWidget {
   final String path;

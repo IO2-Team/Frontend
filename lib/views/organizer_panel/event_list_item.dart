@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:multi_select_flutter/chip_display/multi_select_chip_display.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:openapi/openapi.dart';
 import 'package:webfrontend_dionizos/api/events_controller.dart';
@@ -19,7 +17,13 @@ class EventsListItem extends StatelessWidget {
         decoration: BoxDecoration(
           border: Border.all(width: 1),
           borderRadius: BorderRadius.all(Radius.circular(5.0)),
-          color: event.isValid ? Colors.white : Colors.grey,
+          color: event.status == EventStatus.inFuture
+              ? Color.fromARGB(100, 255, 255, 255)
+              : event.status == EventStatus.pending
+                  ? Color.fromARGB(100, 116, 116, 255)
+                  : event.status == EventStatus.cancelled
+                      ? Color.fromARGB(100, 255, 74, 74)
+                      : Color.fromARGB(100, 158, 158, 158),
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(

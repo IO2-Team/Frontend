@@ -1,13 +1,11 @@
 import 'dart:convert';
-import 'dart:io';
-
 import 'package:built_collection/built_collection.dart';
 import 'package:flutter/foundation.dart' as found;
 import 'package:openapi/openapi.dart';
 import 'package:dio/dio.dart';
+import 'package:webfrontend_dionizos/api/api_connection_string.dart';
 import 'package:webfrontend_dionizos/api/storage_controllers.dart';
 import 'package:http/http.dart' as http;
-import 'package:webfrontend_dionizos/views/organizer_panel/session_ended.dart';
 
 enum ResponseCase { OK, FAILED, SESSION_ENDED }
 
@@ -22,8 +20,7 @@ class EventsController extends found.ChangeNotifier {
   EventsController() {}
 
   static EventApi api = Openapi(
-          dio: Dio(BaseOptions(
-              baseUrl: 'https://dionizos-backend-app.azurewebsites.net')),
+          dio: Dio(BaseOptions(baseUrl: connectionString)),
           serializers: standardSerializers)
       .getEventApi();
 
@@ -68,7 +65,6 @@ class EventsController extends found.ChangeNotifier {
     try {
       token = await _sessionTokenController.get();
     } catch (e) {
-      print(e.toString());
       return ResponseWithState([], ResponseCase.SESSION_ENDED);
     }
     try {
@@ -88,7 +84,7 @@ class EventsController extends found.ChangeNotifier {
             event.categories.toList(),
             event.maxPlace,
             event.freePlace,
-            event.status == EventStatus.inFuture ? true : false));
+            event.status));
       }
       return ResponseWithState(eventsList, ResponseCase.OK);
     } on DioError catch (e) {
@@ -112,7 +108,6 @@ class EventsController extends found.ChangeNotifier {
     try {
       token = await _sessionTokenController.get();
     } catch (e) {
-      print(e.toString());
       return ResponseCase.SESSION_ENDED;
     }
     EventFormBuilder builder = EventFormBuilder();
@@ -152,7 +147,6 @@ class EventsController extends found.ChangeNotifier {
     try {
       token = await _sessionTokenController.get();
     } catch (e) {
-      print(e.toString());
       return ResponseCase.SESSION_ENDED;
     }
     EventPatchBuilder builder = EventPatchBuilder();
@@ -176,6 +170,25 @@ class EventsController extends found.ChangeNotifier {
       return ResponseCase.FAILED;
     }
   }
+
+  Future<ResponseCase> cancelEvent({required int id}) async {
+    String token = "";
+    try {
+      token = await _sessionTokenController.get();
+    } catch (e) {
+      return ResponseCase.SESSION_ENDED;
+    }
+    try {
+      final response =
+          await api.cancelEvent(sessionToken: token, id: id.toString());
+      return ResponseCase.OK;
+    } on DioError catch (e) {
+      if (e.response!.statusCode == 403) {
+        return ResponseCase.SESSION_ENDED;
+      }
+      return ResponseCase.FAILED;
+    }
+  }
 }
 
 class EventListItem {
@@ -185,10 +198,10 @@ class EventListItem {
   final int maxPlace;
   final int freePlace;
   final List<Category> categories;
-  final bool isValid;
+  final EventStatus status;
 
   EventListItem(this.id, this.title, this.name, this.categories, this.maxPlace,
-      this.freePlace, this.isValid);
+      this.freePlace, this.status);
 }
 
 class EventModel {
