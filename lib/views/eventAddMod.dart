@@ -1,14 +1,9 @@
 import 'dart:convert';
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:multi_select_flutter/bottom_sheet/multi_select_bottom_sheet_field.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
-import 'package:multi_select_flutter/util/multi_select_item.dart';
 import 'package:openapi/openapi.dart';
 import 'package:provider/provider.dart';
 import 'package:webfrontend_dionizos/api/Locaction/get_current_location.dart';
@@ -17,7 +12,6 @@ import 'package:webfrontend_dionizos/api/events_controller.dart';
 import 'package:webfrontend_dionizos/views/organizer_panel/panel_navigation_bar.dart';
 import 'package:webfrontend_dionizos/views/organizer_panel/session_ended.dart';
 import 'package:webfrontend_dionizos/widgets/centered_view.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:open_street_map_search_and_pick/open_street_map_search_and_pick.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -120,6 +114,10 @@ class _EventAddModState extends State<EventAddMod> {
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: TextFormField(
+                              readOnly: event.status == EventStatus.inFuture ||
+                                      widget.eventId == null
+                                  ? false
+                                  : true,
                               controller: _titleTextController,
                               decoration: const InputDecoration(
                                   icon: Icon(Icons.title),
@@ -136,6 +134,10 @@ class _EventAddModState extends State<EventAddMod> {
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: TextFormField(
+                              readOnly: event.status == EventStatus.inFuture ||
+                                      widget.eventId == null
+                                  ? false
+                                  : true,
                               keyboardType: TextInputType.multiline,
                               maxLines: null,
                               controller: _nameTextController,
@@ -154,6 +156,10 @@ class _EventAddModState extends State<EventAddMod> {
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: TextFormField(
+                              readOnly: event.status == EventStatus.inFuture ||
+                                      widget.eventId == null
+                                  ? false
+                                  : true,
                               controller: _freePlacesNumberController,
                               inputFormatters: [
                                 FilteringTextInputFormatter.digitsOnly
@@ -182,6 +188,9 @@ class _EventAddModState extends State<EventAddMod> {
                                   border: OutlineInputBorder(),
                                   hintText: 'Enter start date'),
                               onTap: () async {
+                                if (widget.eventId != null &&
+                                    event.status != EventStatus.inFuture)
+                                  return;
                                 DateTime? pickedStartDate =
                                     await showDatePicker(
                                         context: context,
@@ -234,6 +243,9 @@ class _EventAddModState extends State<EventAddMod> {
                                   border: OutlineInputBorder(),
                                   hintText: 'Enter end date'),
                               onTap: () async {
+                                if (widget.eventId != null &&
+                                    event.status != EventStatus.inFuture)
+                                  return;
                                 DateTime? pickedEndDate = await showDatePicker(
                                     context: context,
                                     initialDate: DateTime.now(),
@@ -288,6 +300,9 @@ class _EventAddModState extends State<EventAddMod> {
                                   border: OutlineInputBorder(),
                                   hintText: 'Enter location'),
                               onTap: () async {
+                                if (widget.eventId != null &&
+                                    event.status != EventStatus.inFuture)
+                                  return;
                                 await showDialog(
                                     context: context,
                                     builder: ((context) {
@@ -348,6 +363,10 @@ class _EventAddModState extends State<EventAddMod> {
                                                 .toList(),
                                             listType: MultiSelectListType.CHIP,
                                             onConfirm: (values) {
+                                              if (widget.eventId != null &&
+                                                  event.status !=
+                                                      EventStatus.inFuture)
+                                                return;
                                               event.categories = values;
                                               state.didChange(
                                                   event.categories.length > 0
@@ -372,6 +391,8 @@ class _EventAddModState extends State<EventAddMod> {
                                     )),
                                     TextButton(
                                       onPressed: () async {
+                                        if (event.status !=
+                                            EventStatus.inFuture) return;
                                         await addCategory(
                                             context: context,
                                             key: _addCategoryForm,
@@ -401,6 +422,9 @@ class _EventAddModState extends State<EventAddMod> {
                                         child: const Text(
                                             'Pick place schema (Optional)'),
                                         onPressed: () async {
+                                          if (widget.eventId != null &&
+                                              event.status !=
+                                                  EventStatus.inFuture) return;
                                           XFile? f =
                                               await _imagePicker.pickImage(
                                                   source: ImageSource.gallery);
@@ -421,144 +445,234 @@ class _EventAddModState extends State<EventAddMod> {
                                     ])),
                           ),
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              if (event.status == EventStatus.inFuture ||
-                                  widget.eventId == null)
-                                TextButton(
-                                  style: ButtonStyle(
-                                    foregroundColor:
-                                        MaterialStateProperty.resolveWith(
-                                            (Set<MaterialState> states) {
-                                      return states
-                                              .contains(MaterialState.disabled)
-                                          ? null
-                                          : Colors.white;
-                                    }),
-                                    backgroundColor:
-                                        MaterialStateProperty.resolveWith(
-                                            (Set<MaterialState> states) {
-                                      return states
-                                              .contains(MaterialState.disabled)
-                                          ? null
-                                          : Colors.green;
-                                    }),
-                                  ),
-                                  onPressed: () async {
-                                    if (_formKey.currentState!.validate()) {
-                                      showDialog(
-                                          // The user CANNOT close this dialog  by pressing outsite it
-                                          barrierDismissible: false,
-                                          context: context,
-                                          builder: (_) {
-                                            return Dialog(
-                                              // The background color
-                                              backgroundColor: Colors.white,
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
+                              widget.eventId == null ||
+                                      event.status != EventStatus.inFuture
+                                  ? Container()
+                                  : TextButton(
+                                      style: ButtonStyle(
+                                        foregroundColor:
+                                            MaterialStateProperty.resolveWith(
+                                                (Set<MaterialState> states) {
+                                          return states.contains(
+                                                  MaterialState.disabled)
+                                              ? null
+                                              : Colors.white;
+                                        }),
+                                        backgroundColor:
+                                            MaterialStateProperty.resolveWith(
+                                                (Set<MaterialState> states) {
+                                          return states.contains(
+                                                  MaterialState.disabled)
+                                              ? null
+                                              : Colors.red;
+                                        }),
+                                      ),
+                                      onPressed: () async {
+                                        if (_formKey.currentState!.validate()) {
+                                          showDialog(
+                                              // The user CANNOT close this dialog  by pressing outsite it
+                                              barrierDismissible: false,
+                                              context: context,
+                                              builder: (_) {
+                                                return Dialog(
+                                                  // The background color
+                                                  backgroundColor: Colors.white,
+                                                  child: Padding(
+                                                    padding: const EdgeInsets
+                                                            .symmetric(
                                                         vertical: 20),
-                                                child: Column(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: const [
-                                                    // The loading indicator
-                                                    CircularProgressIndicator(),
-                                                    SizedBox(
-                                                      height: 15,
+                                                    child: Column(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: const [
+                                                        // The loading indicator
+                                                        CircularProgressIndicator(),
+                                                        SizedBox(
+                                                          height: 15,
+                                                        ),
+                                                        // Some text
+                                                        Text('Loading...')
+                                                      ],
                                                     ),
-                                                    // Some text
-                                                    Text('Loading...')
-                                                  ],
-                                                ),
-                                              ),
-                                            );
-                                          });
-                                      final result = widget.eventId != null
-                                          ? await eventsController.patchEvent(
-                                              id: event.id,
-                                              title: _titleTextController.text,
-                                              name: _nameTextController.text,
-                                              maxPlace: int.parse(
-                                                  _freePlacesNumberController
-                                                      .text),
-                                              startTime:
-                                                  event.startTime.toUtc(),
-                                              endTime: event.endTime.toUtc(),
-                                              latitude: event.latitude
-                                                  .toStringAsFixed(7),
-                                              longitude: event.longitude
-                                                  .toStringAsFixed(7),
-                                              categories: event.categories
-                                                  .map((e) => e.id)
-                                                  .toList(),
-                                              placeSchema: imageFile.length == 0
-                                                  ? ""
-                                                  : base64.encode(imageFile))
-                                          : await eventsController.addEvent(
-                                              title: _titleTextController.text,
-                                              name: _nameTextController.text,
-                                              maxPlace: int.parse(
-                                                  _freePlacesNumberController
-                                                      .text),
-                                              startTime: event.startTime.toUtc(),
-                                              endTime: event.endTime.toUtc(),
-                                              latitude: event.latitude.toStringAsFixed(7),
-                                              longitude: event.longitude.toStringAsFixed(7),
-                                              categories: event.categories.map((e) => e.id).toList(),
-                                              placeSchema: imageFile.length == 0 ? "" : base64.encode(imageFile));
+                                                  ),
+                                                );
+                                              });
+                                          final result = await eventsController
+                                              .cancelEvent(id: event.id);
+                                          if (result == ResponseCase.FAILED) {
+                                            context.pop();
+                                            await showDialog(
+                                                context: context,
+                                                builder: (context) =>
+                                                    AlertDialog(
+                                                      title: Text(
+                                                          'Something went wrong. Your event cannot be canceled now'),
+                                                      actions: <Widget>[
+                                                        TextButton(
+                                                          onPressed: () {
+                                                            context.pop();
+                                                          },
+                                                          child:
+                                                              const Text('OK'),
+                                                        ),
+                                                      ],
+                                                    ));
+                                          }
+                                          context.go('/organizerPanel');
+                                        }
+                                      },
+                                      child: Text('Cancel event'),
+                                    ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  if (event.status == EventStatus.inFuture ||
+                                      widget.eventId == null)
+                                    TextButton(
+                                      style: ButtonStyle(
+                                        foregroundColor:
+                                            MaterialStateProperty.resolveWith(
+                                                (Set<MaterialState> states) {
+                                          return states.contains(
+                                                  MaterialState.disabled)
+                                              ? null
+                                              : Colors.white;
+                                        }),
+                                        backgroundColor:
+                                            MaterialStateProperty.resolveWith(
+                                                (Set<MaterialState> states) {
+                                          return states.contains(
+                                                  MaterialState.disabled)
+                                              ? null
+                                              : Colors.green;
+                                        }),
+                                      ),
+                                      onPressed: () async {
+                                        if (_formKey.currentState!.validate()) {
+                                          showDialog(
+                                              // The user CANNOT close this dialog  by pressing outsite it
+                                              barrierDismissible: false,
+                                              context: context,
+                                              builder: (_) {
+                                                return Dialog(
+                                                  // The background color
+                                                  backgroundColor: Colors.white,
+                                                  child: Padding(
+                                                    padding: const EdgeInsets
+                                                            .symmetric(
+                                                        vertical: 20),
+                                                    child: Column(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: const [
+                                                        // The loading indicator
+                                                        CircularProgressIndicator(),
+                                                        SizedBox(
+                                                          height: 15,
+                                                        ),
+                                                        // Some text
+                                                        Text('Loading...')
+                                                      ],
+                                                    ),
+                                                  ),
+                                                );
+                                              });
+                                          final result = widget.eventId != null
+                                              ? await eventsController.patchEvent(
+                                                  id: event.id,
+                                                  title:
+                                                      _titleTextController.text,
+                                                  name:
+                                                      _nameTextController.text,
+                                                  maxPlace: int.parse(
+                                                      _freePlacesNumberController
+                                                          .text),
+                                                  startTime:
+                                                      event.startTime.toUtc(),
+                                                  endTime:
+                                                      event.endTime.toUtc(),
+                                                  latitude: event.latitude
+                                                      .toStringAsFixed(7),
+                                                  longitude: event.longitude
+                                                      .toStringAsFixed(7),
+                                                  categories: event.categories
+                                                      .map((e) => e.id)
+                                                      .toList(),
+                                                  placeSchema: imageFile.length == 0
+                                                      ? ""
+                                                      : base64
+                                                          .encode(imageFile))
+                                              : await eventsController.addEvent(
+                                                  title:
+                                                      _titleTextController.text,
+                                                  name: _nameTextController.text,
+                                                  maxPlace: int.parse(_freePlacesNumberController.text),
+                                                  startTime: event.startTime.toUtc(),
+                                                  endTime: event.endTime.toUtc(),
+                                                  latitude: event.latitude.toStringAsFixed(7),
+                                                  longitude: event.longitude.toStringAsFixed(7),
+                                                  categories: event.categories.map((e) => e.id).toList(),
+                                                  placeSchema: imageFile.length == 0 ? "" : base64.encode(imageFile));
 
-                                      if (result == false) {
-                                        context.pop();
-                                        await showDialog(
-                                            context: context,
-                                            builder: (context) => AlertDialog(
-                                                  title: Text(widget.eventId !=
-                                                          null
-                                                      ? 'Something went wrong. Your event cannot be patched now'
-                                                      : 'Something went wrong. Your event cannot be added now'),
-                                                  actions: <Widget>[
-                                                    TextButton(
-                                                      onPressed: () {
-                                                        context.pop();
-                                                      },
-                                                      child: const Text('OK'),
-                                                    ),
-                                                  ],
-                                                ));
-                                      }
-                                      context.go('/organizerPanel');
-                                    }
-                                  },
-                                  child: Text(widget.eventId != null
-                                      ? 'Save changes'
-                                      : 'Add'),
-                                ),
-                              SizedBox(
-                                width: 20,
-                              ),
-                              TextButton(
-                                style: ButtonStyle(
-                                  foregroundColor:
-                                      MaterialStateProperty.resolveWith(
-                                          (Set<MaterialState> states) {
-                                    return states
-                                            .contains(MaterialState.disabled)
-                                        ? null
-                                        : Colors.white;
-                                  }),
-                                  backgroundColor:
-                                      MaterialStateProperty.resolveWith(
-                                          (Set<MaterialState> states) {
-                                    return states
-                                            .contains(MaterialState.disabled)
-                                        ? null
-                                        : Colors.red;
-                                  }),
-                                ),
-                                onPressed: () => context.go('/organizerPanel'),
-                                child: const Text('Cancel'),
-                              ),
+                                          if (result == false) {
+                                            context.pop();
+                                            await showDialog(
+                                                context: context,
+                                                builder: (context) =>
+                                                    AlertDialog(
+                                                      title: Text(widget
+                                                                  .eventId !=
+                                                              null
+                                                          ? 'Something went wrong. Your event cannot be patched now'
+                                                          : 'Something went wrong. Your event cannot be added now'),
+                                                      actions: <Widget>[
+                                                        TextButton(
+                                                          onPressed: () {
+                                                            context.pop();
+                                                          },
+                                                          child:
+                                                              const Text('OK'),
+                                                        ),
+                                                      ],
+                                                    ));
+                                          }
+                                          context.go('/organizerPanel');
+                                        }
+                                      },
+                                      child: Text(widget.eventId != null
+                                          ? 'Save changes'
+                                          : 'Add'),
+                                    ),
+                                  SizedBox(
+                                    width: 20,
+                                  ),
+                                  TextButton(
+                                    style: ButtonStyle(
+                                      foregroundColor:
+                                          MaterialStateProperty.resolveWith(
+                                              (Set<MaterialState> states) {
+                                        return states.contains(
+                                                MaterialState.disabled)
+                                            ? null
+                                            : Colors.white;
+                                      }),
+                                      backgroundColor:
+                                          MaterialStateProperty.resolveWith(
+                                              (Set<MaterialState> states) {
+                                        return states.contains(
+                                                MaterialState.disabled)
+                                            ? null
+                                            : Colors.red;
+                                      }),
+                                    ),
+                                    onPressed: () =>
+                                        context.go('/organizerPanel'),
+                                    child: const Text('Cancel'),
+                                  ),
+                                ],
+                              )
                             ],
                           )
                         ],

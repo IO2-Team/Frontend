@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:webfrontend_dionizos/widgets/centered_view.dart';
+import 'package:webfrontend_dionizos/api/organizer_controller.dart';
 import 'package:webfrontend_dionizos/views/home/home_page_details.dart';
 import 'package:webfrontend_dionizos/views/home/home_navigation_bar.dart';
 
@@ -8,6 +8,7 @@ class HomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    signOut();
     return Scaffold(
       backgroundColor: Colors.white,
       body: Container(

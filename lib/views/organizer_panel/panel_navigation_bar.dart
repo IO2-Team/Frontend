@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
-import 'package:webfrontend_dionizos/api/organizer_controller.dart';
 import 'package:webfrontend_dionizos/api/storage_controllers.dart';
 import 'package:webfrontend_dionizos/widgets/dionizos_logo.dart';
-import 'dart:ui' as ui;
-
-import 'package:webfrontend_dionizos/widgets/gradient_text.dart';
 
 class PanelNavigationBar extends StatelessWidget {
   const PanelNavigationBar({Key? key}) : super(key: key);
@@ -24,7 +19,7 @@ class PanelNavigationBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          DionizosLogo(),
+          DionizosLogo(path: '/organizerPanel'),
           Row(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
@@ -42,6 +37,9 @@ class PanelNavigationBar extends StatelessWidget {
                 itemBuilder: (context) => [
                   PopupMenuItem(
                       onTap: () => context.go('/'), child: Text('Sign out')),
+                  PopupMenuItem(
+                      onTap: () => context.go('/organizerPanel/account'),
+                      child: Text('Account')),
                   PopupMenuItem(
                       onTap: () => SessionTokenContoller().set('asadasd'),
                       child: Text('Session ended test'))

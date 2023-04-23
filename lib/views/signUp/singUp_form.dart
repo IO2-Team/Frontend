@@ -1,11 +1,7 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:go_router/go_router.dart';
-import 'package:openapi/openapi.dart';
 import 'package:provider/provider.dart';
-import 'package:webfrontend_dionizos/api/api_provider.dart';
 import 'package:webfrontend_dionizos/api/organizer_controller.dart';
 
 class SignUpForm extends StatefulWidget {
@@ -46,6 +42,7 @@ class _SignUpFormState extends State<SignUpForm> {
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextFormField(
+                          key: Key('signUp_username'),
                           controller: _usernameTextController,
                           decoration: const InputDecoration(
                               icon: Icon(Icons.person),
@@ -64,6 +61,7 @@ class _SignUpFormState extends State<SignUpForm> {
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextFormField(
+                          key: Key('signUp_email'),
                           controller: _emailTextController,
                           decoration: const InputDecoration(
                               icon: Icon(Icons.email),
@@ -84,6 +82,7 @@ class _SignUpFormState extends State<SignUpForm> {
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextFormField(
+                          key: Key('signUp_password'),
                           controller: _passwordTextController,
                           obscureText: true,
                           obscuringCharacter: '*',
@@ -104,6 +103,7 @@ class _SignUpFormState extends State<SignUpForm> {
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextFormField(
+                          key: Key('signUp_passwordConfirm'),
                           obscureText: true,
                           obscuringCharacter: '*',
                           decoration: const InputDecoration(
@@ -123,38 +123,39 @@ class _SignUpFormState extends State<SignUpForm> {
                         ),
                       ),
                       TextButton(
+                        key: Key('signUp_button'),
                         style: TextButton.styleFrom(
                             foregroundColor: Colors.white,
                             backgroundColor: Colors.green,
                             padding: EdgeInsets.all(15)),
                         onPressed: () async {
-                          showDialog(
-                              // The user CANNOT close this dialog  by pressing outsite it
-                              barrierDismissible: false,
-                              context: context,
-                              builder: (_) {
-                                return Dialog(
-                                  // The background color
-                                  backgroundColor: Colors.white,
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 20),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: const [
-                                        // The loading indicator
-                                        CircularProgressIndicator(),
-                                        SizedBox(
-                                          height: 15,
-                                        ),
-                                        // Some text
-                                        Text('Loading...')
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              });
                           if (_formKey.currentState!.validate()) {
+                            showDialog(
+                                // The user CANNOT close this dialog  by pressing outsite it
+                                barrierDismissible: false,
+                                context: context,
+                                builder: (_) {
+                                  return Dialog(
+                                    // The background color
+                                    backgroundColor: Colors.white,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 20),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: const [
+                                          // The loading indicator
+                                          CircularProgressIndicator(),
+                                          SizedBox(
+                                            height: 15,
+                                          ),
+                                          // Some text
+                                          Text('Loading...')
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                });
                             if (await organizerController.signUp(
                                 _usernameTextController.text,
                                 _emailTextController.text,
