@@ -7,9 +7,9 @@ const RESOURCES = {
 "canvaskit/profiling/canvaskit.js": "c21852696bc1cc82e8894d851c01921a",
 "canvaskit/profiling/canvaskit.wasm": "371bc4e204443b0d5e774d64a046eb99",
 "canvaskit/canvaskit.wasm": "3de12d898ec208a5f31362cc00f09b9e",
-"index.html": "58c155143673ccf5b162c60cdc9eb14e",
-"/": "58c155143673ccf5b162c60cdc9eb14e",
-"main.dart.js": "5aa386a91190f43431a28f0da02babc5",
+"index.html": "75c7059505b9b8904fb1b7f1e7588ef4",
+"/": "75c7059505b9b8904fb1b7f1e7588ef4",
+"main.dart.js": "076d9be95690f60627fa5b04c8bdb92c",
 "icons/Icon-maskable-192.png": "c457ef57daa1d16f64b27b786ec2ea3c",
 "icons/Icon-512.png": "96e752610906ba2a93c65f8abe1645f1",
 "icons/Icon-maskable-512.png": "301a7604d45b3e739efc881eb04896ea",
@@ -22,7 +22,8 @@ const RESOURCES = {
 "assets/fonts/MaterialIcons-Regular.otf": "e7069dfd19b331be16bed984668fe080",
 "assets/FontManifest.json": "dc3d03800ccca4601324923c0b1d6d57",
 "assets/NOTICES": "07e99657d0dee1504e09f827c0f06fb0",
-"assets/AssetManifest.json": "e209d3fc96c34e4c0d5293159bdd6a48",
+"assets/AssetManifest.json": "b5aa5683e97a13aebdc77485ec5e2d05",
+"assets/assets/images/dionizos_logo.png": "a98c8d639260dc0a8d8e818bb00fe1be",
 "assets/assets/images/back_pic.png": "6c3a204556d3732e6bb03216db9ec6ef",
 "assets/assets/images/welcome_theme.jpg": "60889984d3e01de3d0881130dae484c1"
 };
