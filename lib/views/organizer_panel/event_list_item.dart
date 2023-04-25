@@ -17,21 +17,18 @@ class EventsListItem extends StatelessWidget {
         decoration: BoxDecoration(
           border: Border.all(width: 1),
           borderRadius: BorderRadius.all(Radius.circular(5.0)),
-          color: event.status == EventStatus.inFuture
-              ? Color.fromARGB(100, 255, 255, 255)
-              : event.status == EventStatus.pending
-                  ? Color.fromARGB(100, 116, 116, 255)
-                  : event.status == EventStatus.cancelled
-                      ? Color.fromARGB(100, 255, 74, 74)
-                      : Color.fromARGB(100, 158, 158, 158),
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          statusBar(event.status),
+          SizedBox(
+            height: 10,
+          ),
           Text(
             event.title,
-            style: TextStyle(fontSize: 25),
+            style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
           ),
           SizedBox(
-            height: 15,
+            height: 10,
           ),
           Text(
             event.name,
@@ -54,6 +51,27 @@ class EventsListItem extends StatelessWidget {
         ]),
       ),
     );
+  }
+
+  Widget statusBar(EventStatus status) {
+    return Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: event.status == EventStatus.inFuture
+              ? Colors.green
+              : event.status == EventStatus.pending
+                  ? Colors.blue
+                  : event.status == EventStatus.cancelled
+                      ? Colors.red
+                      : Colors.grey,
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(5),
+          child: Text(
+            status.toString(),
+            style: TextStyle(fontSize: 15, color: Colors.white),
+          ),
+        ));
   }
 
   List<Category> eventCategories(EventListItem event) {

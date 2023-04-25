@@ -7,7 +7,8 @@ import 'package:webfrontend_dionizos/api/storage_controllers.dart';
 
 class OrganizerController extends ChangeNotifier {
   EventOrganizerApi api = Openapi(
-          dio: Dio(BaseOptions(baseUrl: connectionString)),
+          dio: Dio(BaseOptions(
+              baseUrl: BackendConnectionString.currentlySelectedBackend)),
           serializers: standardSerializers)
       .getEventOrganizerApi();
 
@@ -17,6 +18,14 @@ class OrganizerController extends ChangeNotifier {
   String get userId => _userId.toString();
   bool _isPending = true;
   bool get isPending => _isPending;
+
+  changeBackend() {
+    api = Openapi(
+            dio: Dio(BaseOptions(
+                baseUrl: BackendConnectionString.currentlySelectedBackend)),
+            serializers: standardSerializers)
+        .getEventOrganizerApi();
+  }
 
   Future<bool> logIn(String login, String password) async {
     try {

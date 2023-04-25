@@ -11,8 +11,8 @@ class DionizosLogo extends StatelessWidget {
     return TextButton(
       onPressed: () => context.go(path),
       child: Container(
-        width: 300,
-        height: 200,
+        width: 225,
+        height: 150,
         decoration: BoxDecoration(
             image: DecorationImage(
                 image: AssetImage('assets/images/dionizos_logo.png'),

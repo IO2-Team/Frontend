@@ -19,12 +19,21 @@ class ResponseWithState {
 class EventsController extends found.ChangeNotifier {
   EventsController() {}
 
-  static EventApi api = Openapi(
-          dio: Dio(BaseOptions(baseUrl: connectionString)),
+  EventApi api = Openapi(
+          dio: Dio(BaseOptions(
+              baseUrl: BackendConnectionString.currentlySelectedBackend)),
           serializers: standardSerializers)
       .getEventApi();
 
   SessionTokenContoller _sessionTokenController = SessionTokenContoller();
+
+  changeBackend() {
+    api = Openapi(
+            dio: Dio(BaseOptions(
+                baseUrl: BackendConnectionString.currentlySelectedBackend)),
+            serializers: standardSerializers)
+        .getEventApi();
+  }
 
   Future<ResponseWithState> getEvent(int id) async {
     try {
