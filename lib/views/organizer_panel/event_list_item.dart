@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:openapi/openapi.dart';
 import 'package:webfrontend_dionizos/api/events_controller.dart';
+import 'package:webfrontend_dionizos/utils/appColors.dart';
 
 class EventsListItem extends StatelessWidget {
   final EventListItem event;
@@ -15,7 +16,8 @@ class EventsListItem extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(30),
         decoration: BoxDecoration(
-          border: Border.all(width: 1),
+          color: Color.fromARGB(200, 222, 157, 237),
+          //border: Border.all(width: 1),
           borderRadius: BorderRadius.all(Radius.circular(5.0)),
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -84,7 +86,7 @@ class EventsListItem extends StatelessWidget {
   Widget categoriesList(List<Category> categories) {
     return MultiSelectChipDisplay(
       items: categories.map((e) => MultiSelectItem(e, e.name)).toList(),
-      chipColor: Colors.green,
+      chipColor: categoriesColor,
       textStyle: TextStyle(color: Colors.white),
     );
   }

@@ -16,7 +16,7 @@ class CenteredView extends StatelessWidget {
         alignment: Alignment.center,
         child: Container(
             decoration: BoxDecoration(
-                color: Color.fromARGB(180, 250, 254, 255),
+                color: Color.fromARGB(200, 250, 254, 255),
                 borderRadius: BorderRadius.all(Radius.circular(10))),
             child: Padding(
                 padding: const EdgeInsets.all(10),

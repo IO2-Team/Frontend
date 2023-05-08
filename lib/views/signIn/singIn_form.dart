@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:webfrontend_dionizos/api/organizer_controller.dart';
+import 'package:webfrontend_dionizos/utils/appColors.dart';
 
 class SignInForm extends StatefulWidget {
   const SignInForm();
@@ -81,7 +82,7 @@ class _SignUpFormState extends State<SignInForm> {
                         key: Key('signIn_button'),
                         style: TextButton.styleFrom(
                             foregroundColor: Colors.white,
-                            backgroundColor: Colors.green,
+                            backgroundColor: mainColor,
                             padding: EdgeInsets.all(15)),
                         onPressed: () async {
                           _isLogInFailed = false;

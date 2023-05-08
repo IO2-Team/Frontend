@@ -11,6 +11,7 @@ import 'package:webfrontend_dionizos/views/organizer_panel/event_details_view.da
 import 'package:webfrontend_dionizos/views/organizer_panel/organizer_panel_view.dart';
 import 'package:webfrontend_dionizos/views/signIn/signIn_view.dart';
 import 'package:webfrontend_dionizos/views/signUp/signup_view.dart';
+import 'package:webfrontend_dionizos/utils/appColors.dart';
 
 void main() => runApp(
     // ChangeNotifierProvider<APIProvider>(
@@ -84,7 +85,7 @@ class MyApp extends StatelessWidget {
         title: 'Flutter Demo',
         theme: ThemeData(
           scaffoldBackgroundColor: Color.fromARGB(255, 250, 254, 255),
-          primarySwatch: Colors.green,
+          primarySwatch: mainColor,
           textTheme: Theme.of(context).textTheme.apply(fontFamily: 'Open Sans'),
         ),
         routerConfig: _router,

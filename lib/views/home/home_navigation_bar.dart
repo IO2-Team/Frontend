@@ -5,6 +5,7 @@ import 'package:webfrontend_dionizos/api/api_connection_string.dart';
 import 'package:webfrontend_dionizos/api/categories_controller.dart';
 import 'package:webfrontend_dionizos/api/events_controller.dart';
 import 'package:webfrontend_dionizos/api/organizer_controller.dart';
+import 'package:webfrontend_dionizos/utils/appColors.dart';
 import 'package:webfrontend_dionizos/widgets/dionizos_logo.dart';
 
 class HomeNavigationBar extends StatelessWidget {
@@ -27,10 +28,10 @@ class HomeNavigationBar extends StatelessWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              BackendSelectionButton(
-                backendUpdate: updateBackend(eventsController,
-                    organizerController, categoriesController),
-              ),
+              // BackendSelectionButton(
+              //   backendUpdate: updateBackend(eventsController,
+              //       organizerController, categoriesController),
+              // ),
               HighlightButton('Sign Up', () => context.go('/signUp')),
               HighlightButton('Sign In', () => context.go('/signIn')),
             ],
@@ -58,7 +59,7 @@ class _BackendSelectionButtonState extends State<BackendSelectionButton> {
         padding: EdgeInsets.all(5),
         child: Container(
             decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20.0), color: Colors.green),
+                borderRadius: BorderRadius.circular(20.0), color: mainColor),
             child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
                 child: Row(children: [
@@ -72,12 +73,12 @@ class _BackendSelectionButtonState extends State<BackendSelectionButton> {
                   DropdownButton<String>(
                     value: dropdownValue,
                     icon: const Icon(Icons.arrow_downward),
-                    dropdownColor: Colors.green,
+                    dropdownColor: mainColor,
                     elevation: 16,
                     style: const TextStyle(color: Colors.white),
                     underline: Container(
                       height: 2,
-                      color: Colors.green,
+                      color: mainColor,
                     ),
                     onChanged: (String? value) {
                       // This is called when the user selects an item.
@@ -118,7 +119,6 @@ class HighlightButton extends StatelessWidget {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20.0),
             ),
-            backgroundColor: Colors.green,
           ),
           onPressed: action,
           child: Padding(

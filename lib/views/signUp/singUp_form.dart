@@ -3,6 +3,7 @@ import 'package:email_validator/email_validator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:webfrontend_dionizos/api/organizer_controller.dart';
+import 'package:webfrontend_dionizos/utils/appColors.dart';
 
 class SignUpForm extends StatefulWidget {
   const SignUpForm();
@@ -126,7 +127,7 @@ class _SignUpFormState extends State<SignUpForm> {
                         key: Key('signUp_button'),
                         style: TextButton.styleFrom(
                             foregroundColor: Colors.white,
-                            backgroundColor: Colors.green,
+                            backgroundColor: mainColor,
                             padding: EdgeInsets.all(15)),
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {

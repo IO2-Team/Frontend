@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:webfrontend_dionizos/api/Locaction/get_current_location.dart';
 import 'package:webfrontend_dionizos/api/categories_controller.dart';
 import 'package:webfrontend_dionizos/api/events_controller.dart';
+import 'package:webfrontend_dionizos/utils/appColors.dart';
 import 'package:webfrontend_dionizos/views/organizer_panel/panel_navigation_bar.dart';
 import 'package:webfrontend_dionizos/views/organizer_panel/session_ended.dart';
 import 'package:webfrontend_dionizos/widgets/centered_view.dart';
@@ -350,7 +351,7 @@ class _EventAddModState extends State<EventAddMod> {
                                                   .map((e) => MultiSelectItem(
                                                       e, e.name))
                                                   .toList(),
-                                              chipColor: Colors.green,
+                                              chipColor: categoriesColor,
                                               textStyle: TextStyle(
                                                   color: Colors.white),
                                             ),
@@ -391,8 +392,6 @@ class _EventAddModState extends State<EventAddMod> {
                                     )),
                                     TextButton(
                                       onPressed: () async {
-                                        if (event.status !=
-                                            EventStatus.inFuture) return;
                                         await addCategory(
                                             context: context,
                                             key: _addCategoryForm,
