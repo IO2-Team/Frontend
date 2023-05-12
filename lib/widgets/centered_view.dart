@@ -12,7 +12,7 @@ class CenteredView extends StatelessWidget {
             image: DecorationImage(
                 image: AssetImage("assets/images/back_pic.png"),
                 fit: BoxFit.cover)),
-        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 60),
+        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
         alignment: Alignment.center,
         child: Container(
             decoration: BoxDecoration(

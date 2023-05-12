@@ -25,7 +25,7 @@ class _OrganizerPanelViewState extends State<OrganizerPanelView> {
           children: <Widget>[
             PanelNavigationBar(),
             SizedBox(
-              height: 20,
+              height: 15,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

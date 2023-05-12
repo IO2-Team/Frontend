@@ -70,7 +70,13 @@ class EventsListItem extends StatelessWidget {
         child: Padding(
           padding: EdgeInsets.all(5),
           child: Text(
-            status.toString(),
+            event.status == EventStatus.inFuture
+                ? "In future"
+                : event.status == EventStatus.pending
+                    ? "Pending"
+                    : event.status == EventStatus.cancelled
+                        ? "Cancelled"
+                        : "Finished",
             style: TextStyle(fontSize: 15, color: Colors.white),
           ),
         ));
