@@ -5,6 +5,7 @@ import 'package:openapi/openapi.dart';
 import 'package:provider/provider.dart';
 import 'package:webfrontend_dionizos/api/events_controller.dart';
 import 'package:webfrontend_dionizos/api/organizer_controller.dart';
+import 'package:webfrontend_dionizos/utils/appColors.dart';
 import 'package:webfrontend_dionizos/views/organizer_panel/panel_navigation_bar.dart';
 import 'package:webfrontend_dionizos/widgets/centered_view.dart';
 
@@ -107,7 +108,7 @@ class _AccountViewState extends State<AccountView> {
                       TextButton(
                         style: TextButton.styleFrom(
                             foregroundColor: Colors.white,
-                            backgroundColor: Colors.green,
+                            backgroundColor: mainColor,
                             padding: EdgeInsets.all(15)),
                         onPressed: () async {
                           _editMode = true;

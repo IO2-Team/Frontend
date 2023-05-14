@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:webfrontend_dionizos/api/storage_controllers.dart';
+import 'package:webfrontend_dionizos/utils/appColors.dart';
 import 'package:webfrontend_dionizos/widgets/dionizos_logo.dart';
 
 class PanelNavigationBar extends StatelessWidget {
@@ -28,10 +29,11 @@ class PanelNavigationBar extends StatelessWidget {
                 style: TextStyle(fontSize: 20),
               ),
               PopupMenuButton(
+                //color: mainColor,
                 offset: Offset(0, 50),
                 icon: Icon(
                   Icons.account_circle_outlined,
-                  color: Colors.green,
+                  color: mainColor,
                 ),
                 iconSize: 40,
                 itemBuilder: (context) => [

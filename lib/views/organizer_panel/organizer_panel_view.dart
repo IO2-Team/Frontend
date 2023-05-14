@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:webfrontend_dionizos/api/events_controller.dart';
 import 'package:webfrontend_dionizos/api/storage_controllers.dart';
+import 'package:webfrontend_dionizos/utils/appColors.dart';
 import 'package:webfrontend_dionizos/views/organizer_panel/event_list_item.dart';
 import 'package:webfrontend_dionizos/views/organizer_panel/panel_navigation_bar.dart';
 import 'package:webfrontend_dionizos/views/organizer_panel/session_ended.dart';
@@ -24,7 +25,7 @@ class _OrganizerPanelViewState extends State<OrganizerPanelView> {
           children: <Widget>[
             PanelNavigationBar(),
             SizedBox(
-              height: 40,
+              height: 15,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -84,7 +85,8 @@ class _OrganizerPanelViewState extends State<OrganizerPanelView> {
             if (responseEvents.status == ResponseCase.SESSION_ENDED) {
               return sessionEnded(context);
             }
-            List<EventListItem> eventsList = responseEvents.data;
+            List<EventListItem> eventsList =
+                responseEvents.data ?? List<EventListItem>.empty();
             if (eventsList.isEmpty) {
               return Center(
                 child: const Text(
@@ -114,8 +116,8 @@ class _OrganizerPanelViewState extends State<OrganizerPanelView> {
 }
 
 final ButtonStyle flatButtonStyle = TextButton.styleFrom(
-  backgroundColor: Colors.green,
-  foregroundColor: Colors.black,
+  backgroundColor: mainColor,
+  foregroundColor: Colors.white,
   minimumSize: Size(88, 36),
   padding: EdgeInsets.all(16.0),
   shape: const RoundedRectangleBorder(

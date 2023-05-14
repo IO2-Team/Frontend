@@ -8,11 +8,20 @@ class CategoriesController extends foundation.ChangeNotifier {
   CategoriesController() {}
 
   CategoriesApi api = Openapi(
-          dio: Dio(BaseOptions(baseUrl: connectionString)),
+          dio: Dio(BaseOptions(
+              baseUrl: BackendConnectionString.currentlySelectedBackend)),
           serializers: standardSerializers)
       .getCategoriesApi();
 
   SessionTokenContoller _sessionTokenController = SessionTokenContoller();
+
+  changeBackend() {
+    api = Openapi(
+            dio: Dio(BaseOptions(
+                baseUrl: BackendConnectionString.currentlySelectedBackend)),
+            serializers: standardSerializers)
+        .getCategoriesApi();
+  }
 
   Future<List<Category>> getCategories() async {
     final categoriesResponse = await api.getCategories();

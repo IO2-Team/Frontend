@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:openapi/openapi.dart';
 import 'package:webfrontend_dionizos/api/events_controller.dart';
+import 'package:webfrontend_dionizos/utils/appColors.dart';
 
 class EventsListItem extends StatelessWidget {
   final EventListItem event;
@@ -15,23 +16,21 @@ class EventsListItem extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(30),
         decoration: BoxDecoration(
-          border: Border.all(width: 1),
+          color: Color.fromARGB(200, 222, 157, 237),
+          //border: Border.all(width: 1),
           borderRadius: BorderRadius.all(Radius.circular(5.0)),
-          color: event.status == EventStatus.inFuture
-              ? Color.fromARGB(100, 255, 255, 255)
-              : event.status == EventStatus.pending
-                  ? Color.fromARGB(100, 116, 116, 255)
-                  : event.status == EventStatus.cancelled
-                      ? Color.fromARGB(100, 255, 74, 74)
-                      : Color.fromARGB(100, 158, 158, 158),
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          statusBar(event.status),
+          SizedBox(
+            height: 10,
+          ),
           Text(
             event.title,
-            style: TextStyle(fontSize: 25),
+            style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
           ),
           SizedBox(
-            height: 15,
+            height: 10,
           ),
           Text(
             event.name,
@@ -56,6 +55,33 @@ class EventsListItem extends StatelessWidget {
     );
   }
 
+  Widget statusBar(EventStatus status) {
+    return Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: event.status == EventStatus.inFuture
+              ? Colors.green
+              : event.status == EventStatus.pending
+                  ? Colors.blue
+                  : event.status == EventStatus.cancelled
+                      ? Colors.red
+                      : Colors.grey,
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(5),
+          child: Text(
+            event.status == EventStatus.inFuture
+                ? "In future"
+                : event.status == EventStatus.pending
+                    ? "Pending"
+                    : event.status == EventStatus.cancelled
+                        ? "Cancelled"
+                        : "Finished",
+            style: TextStyle(fontSize: 15, color: Colors.white),
+          ),
+        ));
+  }
+
   List<Category> eventCategories(EventListItem event) {
     if (event.categories == null) {
       return List<Category>.empty();
@@ -66,7 +92,7 @@ class EventsListItem extends StatelessWidget {
   Widget categoriesList(List<Category> categories) {
     return MultiSelectChipDisplay(
       items: categories.map((e) => MultiSelectItem(e, e.name)).toList(),
-      chipColor: Colors.green,
+      chipColor: categoriesColor,
       textStyle: TextStyle(color: Colors.white),
     );
   }
