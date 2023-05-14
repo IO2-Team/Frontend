@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
-import 'package:test/test.dart' as test;
 import 'package:webfrontend_dionizos/api/organizer_controller.dart';
 import 'package:webfrontend_dionizos/views/signIn/signIn_view.dart';
 import 'package:webfrontend_dionizos/views/signIn/singIn_form.dart';
+import 'package:webfrontend_dionizos/widgets/centered_view.dart';
 
 void main() {
   testWidgets('singIn_noEmptyFields', (WidgetTester tester) async {
-    tester.binding.window.physicalSizeTestValue = Size(1080, 1920);
+    tester.binding.window.physicalSizeTestValue = Size(1920, 1080);
     tester.binding.window.devicePixelRatioTestValue = 1.0;
 
     final emailField = find.byKey(ValueKey('signIn_email'));
@@ -24,9 +24,14 @@ void main() {
         find.descendant(of: passwordField, matching: textFinderPassword);
 
     await tester.pumpWidget(MaterialApp(
-        home: MultiProvider(providers: [
-      ChangeNotifierProvider(create: (_) => OrganizerController()),
-    ], child: Builder(builder: (_) => SignInView()))));
+        home: MultiProvider(
+            providers: [
+          ChangeNotifierProvider(create: (_) => OrganizerController()),
+        ],
+            child: Builder(
+                builder: (_) => Scaffold(
+                    body: CenteredView(
+                        child: Column(children: [SignInForm()])))))));
     await tester.tap(signInButton);
     await tester.pump();
 
@@ -35,7 +40,7 @@ void main() {
   });
 
   testWidgets('signIn_passwordLongerThan8', (WidgetTester tester) async {
-    tester.binding.window.physicalSizeTestValue = Size(1080, 1920);
+    tester.binding.window.physicalSizeTestValue = Size(1920, 1080);
     tester.binding.window.devicePixelRatioTestValue = 1.0;
     final passwordField = find.byKey(ValueKey('signIn_password'));
     final signInButton = find.byKey(ValueKey('signIn_button'));
@@ -46,9 +51,14 @@ void main() {
         find.descendant(of: passwordField, matching: textFinder);
 
     await tester.pumpWidget(MaterialApp(
-        home: MultiProvider(providers: [
-      ChangeNotifierProvider(create: (_) => OrganizerController()),
-    ], child: Builder(builder: (_) => SignInView()))));
+        home: MultiProvider(
+            providers: [
+          ChangeNotifierProvider(create: (_) => OrganizerController()),
+        ],
+            child: Builder(
+                builder: (_) => Scaffold(
+                    body: CenteredView(
+                        child: Column(children: [SignInForm()])))))));
     await tester.enterText(passwordField, '1234567');
     await tester.tap(signInButton);
     await tester.pump();

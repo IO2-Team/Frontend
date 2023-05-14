@@ -28,167 +28,157 @@ class _SignUpFormState extends State<SignUpForm> {
     OrganizerController organizerController =
         context.watch<OrganizerController>();
     return Expanded(
-      child: Center(
-        child: ListView(
-          shrinkWrap: true,
-          children: [
-            Center(
-              child: Form(
-                key: _formKey,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextFormField(
-                          key: Key('signUp_username'),
-                          controller: _usernameTextController,
-                          decoration: const InputDecoration(
-                              icon: Icon(Icons.person),
-                              border: OutlineInputBorder(),
-                              hintText: 'Choose a username'),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your username';
-                            } else if (value.length < 4) {
-                              return 'Username must be at least 4 characters long';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextFormField(
-                          key: Key('signUp_email'),
-                          controller: _emailTextController,
-                          decoration: const InputDecoration(
-                              icon: Icon(Icons.email),
-                              border: OutlineInputBorder(),
-                              hintText: 'Enter email address'),
-                          validator: (value) {
-                            if (_emailUsed) {
-                              return "There already is account with this email address";
-                            } else if (value == null || value.isEmpty) {
-                              return 'Please enter your email address';
-                            } else if (!EmailValidator.validate(value, true)) {
-                              return 'Email is incorrect';
-                            } else
-                              return null;
-                          },
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextFormField(
-                          key: Key('signUp_password'),
-                          controller: _passwordTextController,
-                          obscureText: true,
-                          obscuringCharacter: '*',
-                          decoration: const InputDecoration(
-                              icon: Icon(Icons.password),
-                              border: OutlineInputBorder(),
-                              hintText: 'Enter password'),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your password';
-                            } else if (value.length < 8) {
-                              return "Password have to be at least 8 characters long";
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextFormField(
-                          key: Key('signUp_passwordConfirm'),
-                          obscureText: true,
-                          obscuringCharacter: '*',
-                          decoration: const InputDecoration(
-                              icon: Icon(Icons.password),
-                              border: OutlineInputBorder(),
-                              hintText: 'Confirm password'),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your password';
-                            } else if (value.length < 8) {
-                              return "Password have to be at least 8 characters long";
-                            } else if (value != _passwordTextController.text) {
-                              return 'Password not matching';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                      TextButton(
-                        key: Key('signUp_button'),
-                        style: TextButton.styleFrom(
-                            foregroundColor: Colors.white,
-                            backgroundColor: mainColor,
-                            padding: EdgeInsets.all(15)),
-                        onPressed: () async {
-                          if (_formKey.currentState!.validate()) {
-                            showDialog(
-                                // The user CANNOT close this dialog  by pressing outsite it
-                                barrierDismissible: false,
-                                context: context,
-                                builder: (_) {
-                                  return Dialog(
-                                    // The background color
-                                    backgroundColor: Colors.white,
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 20),
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: const [
-                                          // The loading indicator
-                                          CircularProgressIndicator(),
-                                          SizedBox(
-                                            height: 15,
-                                          ),
-                                          // Some text
-                                          Text('Loading...')
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                });
-                            if (await organizerController.signUp(
-                                _usernameTextController.text,
-                                _emailTextController.text,
-                                _passwordTextController.text)) {
-                              context.pop();
-                              showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return _confirmationDialog(
-                                        organizerController);
-                                  });
-                            } else {
-                              context.pop();
-                              _emailUsed = true;
-                              _formKey.currentState!.validate();
-                            }
-                          }
-                        },
-                        child: const Text(
-                          'Sign up',
-                          style: TextStyle(fontSize: 20),
-                        ),
-                      ),
-                    ],
-                  ),
+        child: Center(
+      child: Form(
+        key: _formKey,
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextFormField(
+                  key: Key('signUp_username'),
+                  controller: _usernameTextController,
+                  decoration: const InputDecoration(
+                      icon: Icon(Icons.person),
+                      border: OutlineInputBorder(),
+                      hintText: 'Choose a username'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your username';
+                    } else if (value.length < 4) {
+                      return 'Username must be at least 4 characters long';
+                    }
+                    return null;
+                  },
                 ),
               ),
-            )
-          ],
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextFormField(
+                  key: Key('signUp_email'),
+                  controller: _emailTextController,
+                  decoration: const InputDecoration(
+                      icon: Icon(Icons.email),
+                      border: OutlineInputBorder(),
+                      hintText: 'Enter email address'),
+                  validator: (value) {
+                    if (_emailUsed) {
+                      return "There already is account with this email address";
+                    } else if (value == null || value.isEmpty) {
+                      return 'Please enter your email address';
+                    } else if (!EmailValidator.validate(value, true)) {
+                      return 'Email is incorrect';
+                    } else
+                      return null;
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextFormField(
+                  key: Key('signUp_password'),
+                  controller: _passwordTextController,
+                  obscureText: true,
+                  obscuringCharacter: '*',
+                  decoration: const InputDecoration(
+                      icon: Icon(Icons.password),
+                      border: OutlineInputBorder(),
+                      hintText: 'Enter password'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your password';
+                    } else if (value.length < 8) {
+                      return "Password have to be at least 8 characters long";
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextFormField(
+                  key: Key('signUp_passwordConfirm'),
+                  obscureText: true,
+                  obscuringCharacter: '*',
+                  decoration: const InputDecoration(
+                      icon: Icon(Icons.password),
+                      border: OutlineInputBorder(),
+                      hintText: 'Confirm password'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your password';
+                    } else if (value.length < 8) {
+                      return "Password have to be at least 8 characters long";
+                    } else if (value != _passwordTextController.text) {
+                      return 'Password not matching';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              TextButton(
+                key: Key('signUp_button'),
+                style: TextButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: mainColor,
+                    padding: EdgeInsets.all(15)),
+                onPressed: () async {
+                  if (_formKey.currentState!.validate()) {
+                    showDialog(
+                        // The user CANNOT close this dialog  by pressing outsite it
+                        barrierDismissible: false,
+                        context: context,
+                        builder: (_) {
+                          return Dialog(
+                            // The background color
+                            backgroundColor: Colors.white,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 20),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: const [
+                                  // The loading indicator
+                                  CircularProgressIndicator(),
+                                  SizedBox(
+                                    height: 15,
+                                  ),
+                                  // Some text
+                                  Text('Loading...')
+                                ],
+                              ),
+                            ),
+                          );
+                        });
+                    if (await organizerController.signUp(
+                        _usernameTextController.text,
+                        _emailTextController.text,
+                        _passwordTextController.text)) {
+                      context.pop();
+                      showDialog(
+                          context: context,
+                          builder: (context) {
+                            return _confirmationDialog(organizerController);
+                          });
+                    } else {
+                      context.pop();
+                      _emailUsed = true;
+                      _formKey.currentState!.validate();
+                    }
+                  }
+                },
+                child: const Text(
+                  'Sign up',
+                  style: TextStyle(fontSize: 20),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-    );
+    ));
   }
 
   Widget _confirmationDialog(OrganizerController organizerController) {

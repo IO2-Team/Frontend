@@ -10,7 +10,6 @@ class SignInView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     signOut();
-    print("SignInBuild");
     return Scaffold(
       backgroundColor: Colors.grey[200],
       body: CenteredView(

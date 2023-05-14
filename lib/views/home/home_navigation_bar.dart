@@ -58,6 +58,7 @@ class _BackendSelectionButtonState extends State<BackendSelectionButton> {
     return Padding(
         padding: EdgeInsets.all(5),
         child: Container(
+            height: 100,
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20.0), color: mainColor),
             child: Padding(
