@@ -32,8 +32,10 @@ class HomeNavigationBar extends StatelessWidget {
               //   backendUpdate: updateBackend(eventsController,
               //       organizerController, categoriesController),
               // ),
-              HighlightButton('Sign Up', () => context.go('/signUp')),
-              HighlightButton('Sign In', () => context.go('/signIn')),
+              HighlightButton(
+                  Key('SignUpPageKey'), 'Sign Up', () => context.go('/signUp')),
+              HighlightButton(
+                  Key('SignInPageKey'), 'Sign In', () => context.go('/signIn')),
             ],
           )
         ],
@@ -107,13 +109,14 @@ class _BackendSelectionButtonState extends State<BackendSelectionButton> {
 }
 
 class HighlightButton extends StatelessWidget {
-  HighlightButton(this.title, this.action);
+  HighlightButton(Key key, this.title, this.action);
   final String title;
   var action;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
+        key: key,
         padding: EdgeInsets.all(5),
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
