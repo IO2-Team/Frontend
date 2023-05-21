@@ -1,0 +1,8 @@
+flutter drive --driver=test_driver/integration_test.dart --target=integration_test/app_launch.dart -d chrome
+flutter drive --driver=test_driver/integration_test.dart --target=integration_test/app_sign_out.dart -d chrome
+flutter drive --driver=test_driver/integration_test.dart --target=integration_test/app_create_event.dart -d chrome
+flutter drive --driver=test_driver/integration_test.dart --target=integration_test/app_cancel_event.dart -d chrome
+flutter drive --driver=test_driver/integration_test.dart --target=integration_test/app_edit_in_future_event.dart -d chrome
+flutter drive --driver=test_driver/integration_test.dart --target=integration_test/app_exit_event.dart -d chrome
+flutter drive --driver=test_driver/integration_test.dart --target=integration_test/app_exit_event2.dart -d chrome
+flutter drive --driver=test_driver/integration_test.dart --target=integration_test/app_save_changes_event.dart -d chrome

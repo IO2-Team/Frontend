@@ -61,6 +61,8 @@ class _AccountViewState extends State<AccountView> {
               ),
             ));
           } else {
+            if (snapshot.data!.data == null)
+              return Text('Organizer not loaded');
             Organizer organizerData = snapshot.data!.data;
             _usernameTextController.text = organizerData.name;
             _emailTextController.text = organizerData.email;
@@ -73,236 +75,224 @@ class _AccountViewState extends State<AccountView> {
 
   Widget account() {
     return Expanded(
-      child: Center(
-        child: ListView(
-          shrinkWrap: true,
-          children: [
-            Center(
-              child: Form(
-                key: _formKey,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextField(
-                          readOnly: true,
-                          controller: _emailTextController,
-                          decoration: const InputDecoration(
-                            icon: Icon(Icons.email),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextField(
-                          readOnly: _editMode ? false : true,
-                          controller: _usernameTextController,
-                          decoration: const InputDecoration(
-                            icon: Icon(Icons.person),
-                          ),
-                        ),
-                      ),
-                      TextButton(
-                        style: TextButton.styleFrom(
-                            foregroundColor: Colors.white,
-                            backgroundColor: mainColor,
-                            padding: EdgeInsets.all(15)),
-                        onPressed: () async {
-                          _editMode = true;
-                          setState(() {});
-                        },
-                        child: Text(
-                          'Edit',
-                          style: TextStyle(fontSize: 20),
-                        ),
-                      ),
-                    ],
+        child: Center(
+      child: Form(
+        key: _formKey,
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  readOnly: true,
+                  controller: _emailTextController,
+                  decoration: const InputDecoration(
+                    icon: Icon(Icons.email),
                   ),
                 ),
               ),
-            )
-          ],
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  readOnly: _editMode ? false : true,
+                  controller: _usernameTextController,
+                  decoration: const InputDecoration(
+                    icon: Icon(Icons.person),
+                  ),
+                ),
+              ),
+              TextButton(
+                key: Key('accountEditButtonKey'),
+                style: TextButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: mainColor,
+                    padding: EdgeInsets.all(15)),
+                onPressed: () async {
+                  _editMode = true;
+                  setState(() {});
+                },
+                child: Text(
+                  'Edit',
+                  style: TextStyle(fontSize: 20),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-    );
+    ));
   }
 
   Widget accountEditMode(
       OrganizerController organizerController, Organizer organizerData) {
     return Expanded(
-      child: Center(
-        child: ListView(
-          shrinkWrap: true,
-          children: [
-            Center(
-              child: Form(
-                key: _formKey,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextFormField(
-                          readOnly: true,
-                          controller: _emailTextController,
-                          decoration: const InputDecoration(
-                              icon: Icon(Icons.email),
-                              border: OutlineInputBorder(),
-                              hintText: 'Enter email address',
-                              fillColor: Colors.grey,
-                              filled: true),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your email address';
-                            } else if (!EmailValidator.validate(value, true)) {
-                              return 'Email is incorrect';
-                            } else
-                              return null;
-                          },
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextFormField(
-                          readOnly: _editMode ? false : true,
-                          controller: _usernameTextController,
-                          decoration: const InputDecoration(
-                              icon: Icon(Icons.person),
-                              border: OutlineInputBorder(),
-                              hintText: 'Choose a username'),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your username';
-                            } else if (value.length < 4) {
-                              return 'Username must be at least 4 characters long';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextFormField(
-                          readOnly: _editMode ? false : true,
-                          controller: _passwordTextController,
-                          obscureText: true,
-                          obscuringCharacter: '*',
-                          decoration: const InputDecoration(
-                              icon: Icon(Icons.password),
-                              border: OutlineInputBorder(),
-                              hintText: 'Enter password'),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return null;
-                            } else if (value.length < 8) {
-                              return "Password have to be at least 8 characters long";
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextFormField(
-                          readOnly: _editMode ? false : true,
-                          obscureText: true,
-                          obscuringCharacter: '*',
-                          decoration: const InputDecoration(
-                              icon: Icon(Icons.password),
-                              border: OutlineInputBorder(),
-                              hintText: 'Confirm password'),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return null;
-                            } else if (value.length < 8) {
-                              return "Password have to be at least 8 characters long";
-                            } else if (value != _passwordTextController.text) {
-                              return 'Password not matching';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          TextButton(
-                              style: TextButton.styleFrom(
-                                  foregroundColor: Colors.white,
-                                  backgroundColor: Colors.red,
-                                  padding: EdgeInsets.all(15)),
-                              onPressed: () => deleteAccount(
-                                  organizerController, organizerData),
-                              child: Text('Delete account')),
-                          TextButton(
-                            style: TextButton.styleFrom(
-                                foregroundColor: Colors.white,
-                                backgroundColor: Colors.green,
-                                padding: EdgeInsets.all(15)),
-                            onPressed: () async {
-                              if (_formKey.currentState!.validate()) {
-                                showDialog(
-                                    // The user CANNOT close this dialog  by pressing outsite it
-                                    barrierDismissible: false,
-                                    context: context,
-                                    builder: (_) {
-                                      return Dialog(
-                                        // The background color
-                                        backgroundColor: Colors.white,
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 20),
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: const [
-                                              // The loading indicator
-                                              CircularProgressIndicator(),
-                                              SizedBox(
-                                                height: 15,
-                                              ),
-                                              // Some text
-                                              Text('Loading...')
-                                            ],
-                                          ),
-                                        ),
-                                      );
-                                    });
-                                final result =
-                                    await organizerController.patchAccount(
-                                        id: organizerData.id,
-                                        userName: _usernameTextController.text,
-                                        password: _passwordTextController.text);
-                                if (result == ResponseCase.OK) {
-                                  context.pop();
-                                  _editMode = false;
-                                  setState(() {});
-                                } else {
-                                  context.pop();
-                                  _formKey.currentState!.validate();
-                                }
-                              }
-                            },
-                            child: Text(
-                              'Save Changes',
-                              style: TextStyle(fontSize: 20),
-                            ),
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
+        child: Center(
+      child: Form(
+        key: _formKey,
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextFormField(
+                  readOnly: true,
+                  controller: _emailTextController,
+                  decoration: const InputDecoration(
+                      icon: Icon(Icons.email),
+                      border: OutlineInputBorder(),
+                      hintText: 'Enter email address',
+                      fillColor: Colors.grey,
+                      filled: true),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your email address';
+                    } else if (!EmailValidator.validate(value, true)) {
+                      return 'Email is incorrect';
+                    } else
+                      return null;
+                  },
                 ),
               ),
-            )
-          ],
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextFormField(
+                  key: Key('accountEditUsernameKey'),
+                  readOnly: _editMode ? false : true,
+                  controller: _usernameTextController,
+                  decoration: const InputDecoration(
+                      icon: Icon(Icons.person),
+                      border: OutlineInputBorder(),
+                      hintText: 'Choose a username'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your username';
+                    } else if (value.length < 4) {
+                      return 'Username must be at least 4 characters long';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextFormField(
+                  key: Key('accountEditPasswordKey'),
+                  readOnly: _editMode ? false : true,
+                  controller: _passwordTextController,
+                  obscureText: true,
+                  obscuringCharacter: '*',
+                  decoration: const InputDecoration(
+                      icon: Icon(Icons.password),
+                      border: OutlineInputBorder(),
+                      hintText: 'Enter password'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return null;
+                    } else if (value.length < 8) {
+                      return "Password have to be at least 8 characters long";
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextFormField(
+                  key: Key('accountConfirmPasswordKey'),
+                  readOnly: _editMode ? false : true,
+                  obscureText: true,
+                  obscuringCharacter: '*',
+                  decoration: const InputDecoration(
+                      icon: Icon(Icons.password),
+                      border: OutlineInputBorder(),
+                      hintText: 'Confirm password'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return null;
+                    } else if (value.length < 8) {
+                      return "Password have to be at least 8 characters long";
+                    } else if (value != _passwordTextController.text) {
+                      return 'Password not matching';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton(
+                      style: TextButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          backgroundColor: Colors.red,
+                          padding: EdgeInsets.all(15)),
+                      onPressed: () =>
+                          deleteAccount(organizerController, organizerData),
+                      child: Text('Delete account')),
+                  TextButton(
+                    key: Key('accountSaveChangesButtonKey'),
+                    style: TextButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.green,
+                        padding: EdgeInsets.all(15)),
+                    onPressed: () async {
+                      if (_formKey.currentState!.validate()) {
+                        showDialog(
+                            // The user CANNOT close this dialog  by pressing outsite it
+                            barrierDismissible: false,
+                            context: context,
+                            builder: (_) {
+                              return Dialog(
+                                // The background color
+                                backgroundColor: Colors.white,
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 20),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: const [
+                                      // The loading indicator
+                                      CircularProgressIndicator(),
+                                      SizedBox(
+                                        height: 15,
+                                      ),
+                                      // Some text
+                                      Text('Loading...')
+                                    ],
+                                  ),
+                                ),
+                              );
+                            });
+                        final result = await organizerController.patchAccount(
+                            id: organizerData.id,
+                            userName: _usernameTextController.text,
+                            password: _passwordTextController.text);
+                        if (result == ResponseCase.OK) {
+                          context.pop();
+                          _editMode = false;
+                          setState(() {});
+                        } else {
+                          context.pop();
+                          _formKey.currentState!.validate();
+                        }
+                      }
+                    },
+                    child: Text(
+                      'Save Changes',
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  ),
+                ],
+              )
+            ],
+          ),
         ),
       ),
-    );
+    ));
   }
 
   deleteAccount(

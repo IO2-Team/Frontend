@@ -115,6 +115,7 @@ class _EventAddModState extends State<EventAddMod> {
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: TextFormField(
+                              key: const Key('EventTitleKey'),
                               readOnly: event.status == EventStatus.inFuture ||
                                       widget.eventId == null
                                   ? false
@@ -135,6 +136,7 @@ class _EventAddModState extends State<EventAddMod> {
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: TextFormField(
+                              key: const Key('EventDescriptionKey'),
                               readOnly: event.status == EventStatus.inFuture ||
                                       widget.eventId == null
                                   ? false
@@ -157,6 +159,7 @@ class _EventAddModState extends State<EventAddMod> {
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: TextFormField(
+                              key: const Key('EventNumberKey'),
                               readOnly: event.status == EventStatus.inFuture ||
                                       widget.eventId == null
                                   ? false
@@ -182,6 +185,7 @@ class _EventAddModState extends State<EventAddMod> {
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: TextFormField(
+                              key: const Key('EventStartDateKey'),
                               readOnly: true,
                               controller: _startDateTextController,
                               decoration: const InputDecoration(
@@ -237,6 +241,7 @@ class _EventAddModState extends State<EventAddMod> {
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: TextFormField(
+                              key: const Key('EventEndDateKey'),
                               readOnly: true,
                               controller: _endDateTextController,
                               decoration: const InputDecoration(
@@ -294,6 +299,7 @@ class _EventAddModState extends State<EventAddMod> {
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: TextFormField(
+                              key: const Key('EventLocationKey'),
                               readOnly: true,
                               controller: _locationTextController,
                               decoration: const InputDecoration(
@@ -343,6 +349,7 @@ class _EventAddModState extends State<EventAddMod> {
                                       builder: (FormFieldState state) =>
                                           Column(children: [
                                         MultiSelectDialogField(
+                                            key: GlobalKey(debugLabel: 'ChooseCategoriesKey'),
                                             decoration: BoxDecoration(
                                               border: Border.all(),
                                             ),

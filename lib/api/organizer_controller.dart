@@ -48,14 +48,19 @@ class OrganizerController extends ChangeNotifier {
     try {
       token = await _sessionTokenController.get();
     } catch (e) {
+      print('Session ended during get Organizer');
       return ResponseWithState(null, ResponseCase.SESSION_ENDED);
     }
+    print('token: ' + token);
     try {
       final userData = await api.getOrganizer(sessionToken: token);
       return ResponseWithState(userData.data!, ResponseCase.OK);
     } on DioError catch (e) {
-      if (e.response!.statusCode == 403)
+      if (e.response!.statusCode == 403) {
+        print('403 during get organizer');
         return ResponseWithState(null, ResponseCase.SESSION_ENDED);
+      }
+      print('error during get organizer');
       return ResponseWithState(null, ResponseCase.FAILED);
     }
   }
