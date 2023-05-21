@@ -40,6 +40,7 @@ class _OrganizerPanelViewState extends State<OrganizerPanelView> {
                 Row(
                   children: [
                     ElevatedButton.icon(
+                      key: const Key('CreateNewEventKey'),
                       onPressed: () {
                         context.go('/organizerPanel/addEvent');
                       },

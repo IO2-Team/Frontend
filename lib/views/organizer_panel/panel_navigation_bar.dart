@@ -29,6 +29,7 @@ class PanelNavigationBar extends StatelessWidget {
                 style: TextStyle(fontSize: 20),
               ),
               PopupMenuButton(
+                key: const Key("PopMenuKey"),
                 //color: mainColor,
                 offset: Offset(0, 50),
                 icon: Icon(
@@ -38,7 +39,7 @@ class PanelNavigationBar extends StatelessWidget {
                 iconSize: 40,
                 itemBuilder: (context) => [
                   PopupMenuItem(
-                      onTap: () => context.go('/'), child: Text('Sign out')),
+                      key: const Key('SignOutKey'), onTap: () => context.go('/'), child: Text('Sign out')),
                   PopupMenuItem(
                       onTap: () => context.go('/organizerPanel/account'),
                       child: Text('Account')),
