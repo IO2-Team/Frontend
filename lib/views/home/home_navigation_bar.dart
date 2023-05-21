@@ -109,16 +109,17 @@ class _BackendSelectionButtonState extends State<BackendSelectionButton> {
 }
 
 class HighlightButton extends StatelessWidget {
-  HighlightButton(Key key, this.title, this.action);
+  HighlightButton(this.buttonKey, this.title, this.action);
   final String title;
   var action;
+  final buttonKey;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-        key: key,
         padding: EdgeInsets.all(5),
         child: ElevatedButton(
+          key: buttonKey,
           style: ElevatedButton.styleFrom(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20.0),

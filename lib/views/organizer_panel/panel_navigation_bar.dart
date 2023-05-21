@@ -29,6 +29,7 @@ class PanelNavigationBar extends StatelessWidget {
                 style: TextStyle(fontSize: 20),
               ),
               PopupMenuButton(
+                key: Key('menuButtonKey'),
                 //color: mainColor,
                 offset: Offset(0, 50),
                 icon: Icon(
@@ -38,9 +39,15 @@ class PanelNavigationBar extends StatelessWidget {
                 iconSize: 40,
                 itemBuilder: (context) => [
                   PopupMenuItem(
-                      onTap: () => context.go('/'), child: Text('Sign out')),
+                      key: Key('signOutButtonKey'),
+                      onTap: () => context.go('/'),
+                      child: Text('Sign out')),
                   PopupMenuItem(
-                      onTap: () => context.go('/organizerPanel/account'),
+                      key: Key('accountMenuButtonKey'),
+                      onTap: () {
+                        print('Session Token:' + SessionTokenContoller().get());
+                        context.go('/organizerPanel/account');
+                      },
                       child: Text('Account')),
                   PopupMenuItem(
                       onTap: () => SessionTokenContoller().set('asadasd'),
