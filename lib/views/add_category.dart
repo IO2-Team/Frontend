@@ -80,8 +80,11 @@ Future addCategory(
                     context.pop();
                   }
                 },
-                child: const Text('Add')),
+                key: const Key('AddCategoryKey'),
+                child: const Text('Add')
+                ),
             TextButton(
+                key: const Key('CancelCategoryKey'),
                 onPressed: () => context.pop(), child: const Text('Cancel'))
           ],
         );

@@ -9,6 +9,7 @@ class DionizosLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextButton(
+      key: const Key('DionizosLogoKey'),
       onPressed: () => context.go(path),
       child: Container(
         width: 150,
