@@ -80,12 +80,6 @@ class EventsController extends found.ChangeNotifier {
       final eventsResponse = await api.getMyEvents(sessionToken: token);
       List<EventListItem> eventsList = [];
       for (var event in eventsResponse.data!.asList()) {
-        DateTime startTime =
-            DateTime.fromMillisecondsSinceEpoch(event.startTime * 1000);
-        DateTime endTime =
-            DateTime.fromMillisecondsSinceEpoch(event.endTime * 1000);
-        String addressName = await parseLocationName(
-            double.parse(event.latitude), double.parse(event.longitude));
         eventsList.add(EventListItem(
             event.id,
             event.title,
@@ -130,8 +124,7 @@ class EventsController extends found.ChangeNotifier {
     builder.longitude = longitude;
     builder.placeSchema = placeSchema ?? "";
     try {
-      final response =
-          await api.addEvent(sessionToken: token, eventForm: builder.build());
+      await api.addEvent(sessionToken: token, eventForm: builder.build());
       return ResponseCase.OK;
     } on DioError catch (e) {
       if (e.response!.statusCode == 403) {
@@ -169,7 +162,7 @@ class EventsController extends found.ChangeNotifier {
     builder.longitude = longitude;
     builder.placeSchema = placeSchema ?? "";
     try {
-      final response = await api.patchEvent(
+      await api.patchEvent(
           sessionToken: token, id: id.toString(), eventPatch: builder.build());
       return ResponseCase.OK;
     } on DioError catch (e) {
@@ -188,8 +181,7 @@ class EventsController extends found.ChangeNotifier {
       return ResponseCase.SESSION_ENDED;
     }
     try {
-      final response =
-          await api.cancelEvent(sessionToken: token, id: id.toString());
+      await api.cancelEvent(sessionToken: token, id: id.toString());
       return ResponseCase.OK;
     } on DioError catch (e) {
       if (e.response!.statusCode == 403) {

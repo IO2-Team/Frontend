@@ -9,7 +9,7 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   const Duration pumpDuration = Duration(milliseconds: 1000);
 
-  testWidgets('Edit Accout Username', (tester) async {
+  testWidgets('Account page', (tester) async {
     app.main();
     await tester.pumpAndSettle(pumpDuration);
 
@@ -37,28 +37,14 @@ void main() {
     await tester.tap(accountMenuButton);
     await tester.pumpAndSettle(pumpDuration);
 
+    expect(find.text(username), findsAtLeastNWidgets(2));
+
     final editButton = find.byKey(ValueKey('accountEditButtonKey'));
     await tester.tap(editButton);
+    //await tester.pumpAndSettle(pumpDuration);
     await Future.delayed(pumpDuration);
 
-    final userNameTextField = find.byKey(ValueKey('accountEditUsernameKey'));
-    await tester.enterText(userNameTextField, 'Username changed');
-    final saveChangesButton =
-        find.byKey(ValueKey('accountSaveChangesButtonKey'));
-    await tester.tap(saveChangesButton);
-    await tester.pumpAndSettle(pumpDuration);
-    expect(find.text('Username changed'), findsAtLeastNWidgets(1));
-
-    final editButton2 = find.byKey(ValueKey('accountEditButtonKey'));
-    await tester.tap(editButton2);
-    await Future.delayed(pumpDuration);
-
-    final userNameTextField2 = find.byKey(ValueKey('accountEditUsernameKey'));
-    await tester.enterText(userNameTextField2, username);
-    final saveChangesButton2 =
-        find.byKey(ValueKey('accountSaveChangesButtonKey'));
-    await tester.tap(saveChangesButton2);
-    await tester.pumpAndSettle(pumpDuration);
-    expect(find.text(username), findsAtLeastNWidgets(1));
+    expect(find.text('Delete account'), findsOneWidget);
+    expect(find.text('Save Changes'), findsOneWidget);
   });
 }

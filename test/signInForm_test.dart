@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:webfrontend_dionizos/api/organizer_controller.dart';
-import 'package:webfrontend_dionizos/views/signIn/signIn_view.dart';
 import 'package:webfrontend_dionizos/views/signIn/singIn_form.dart';
 import 'package:webfrontend_dionizos/widgets/centered_view.dart';
 

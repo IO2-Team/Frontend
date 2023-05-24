@@ -15,7 +15,6 @@ import 'package:webfrontend_dionizos/views/organizer_panel/session_ended.dart';
 import 'package:webfrontend_dionizos/widgets/centered_view.dart';
 import 'package:open_street_map_search_and_pick/open_street_map_search_and_pick.dart';
 import 'package:intl/intl.dart';
-import 'package:intl/date_symbol_data_local.dart';
 import 'package:webfrontend_dionizos/views/add_category.dart';
 
 class EventAddMod extends StatefulWidget {
@@ -38,7 +37,6 @@ class _EventAddModState extends State<EventAddMod> {
   final _startDateTextController = TextEditingController();
   final _endDateTextController = TextEditingController();
   final _locationTextController = TextEditingController();
-  final _categoriesTextController = TextEditingController();
   final _addCategoryTextController = TextEditingController();
   final _imagePicker = ImagePicker();
   Uint8List imageFile = Uint8List(0);
@@ -349,7 +347,9 @@ class _EventAddModState extends State<EventAddMod> {
                                       builder: (FormFieldState state) =>
                                           Column(children: [
                                         MultiSelectDialogField(
-                                            key: GlobalKey(debugLabel: 'ChooseCategoriesKey'),
+                                            key: GlobalKey(
+                                                debugLabel:
+                                                    'ChooseCategoriesKey'),
                                             decoration: BoxDecoration(
                                               border: Border.all(),
                                             ),
