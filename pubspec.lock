@@ -534,8 +534,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.8.3"
-<<<<<<< HEAD
-=======
   platform:
     dependency: transitive
     description:
@@ -544,7 +542,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.0"
->>>>>>> Sprint5
   plugin_platform_interface:
     dependency: transitive
     description:
