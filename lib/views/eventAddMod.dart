@@ -282,12 +282,10 @@ class _EventAddModState extends State<EventAddMod> {
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return 'Please enter end date';
-                                } else if (_startDateTextController.text !=
-                                        null &&
-                                    DateTime.parse(
-                                            _startDateTextController.text)
-                                        .isAfter(DateTime.parse(
-                                            _endDateTextController.text))) {
+                                } else if (DateTime.parse(
+                                        _startDateTextController.text)
+                                    .isAfter(DateTime.parse(
+                                        _endDateTextController.text))) {
                                   return 'End date must be after start date';
                                 }
                                 return null;

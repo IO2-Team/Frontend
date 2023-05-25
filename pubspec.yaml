@@ -53,6 +53,7 @@ dependencies:
   dio: '^5.0.0'
   openapi:
     path: api
+  azblob: ^2.4.0
 
 dev_dependencies:
   flutter_test:

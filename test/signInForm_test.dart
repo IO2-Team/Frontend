@@ -7,8 +7,8 @@ import 'package:webfrontend_dionizos/widgets/centered_view.dart';
 
 void main() {
   testWidgets('singIn_noEmptyFields', (WidgetTester tester) async {
-    tester.binding.window.physicalSizeTestValue = Size(1920, 1080);
-    tester.binding.window.devicePixelRatioTestValue = 1.0;
+    tester.view.physicalSize = Size(1920, 1080);
+    tester.view.devicePixelRatio = 1.0;
 
     final emailField = find.byKey(ValueKey('signIn_email'));
     final passwordField = find.byKey(ValueKey('signIn_password'));
