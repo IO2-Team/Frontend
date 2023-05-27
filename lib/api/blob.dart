@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:azblob/azblob.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:http/http.dart';
+import 'package:http/http.dart' as http;
 
 const connectionString = String.fromEnvironment(
   'BLOB_KEY',
@@ -24,7 +24,6 @@ class Blob {
   }
 
   Future<String> get(String path) async {
-    print(connectionString);
     var content = await storage.getBlob(container + path);
     var response = await content.stream.toBytes();
     return String.fromCharCodes(response);

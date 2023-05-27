@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:webfrontend_dionizos/api/Locaction/get_current_location.dart';
 import 'package:webfrontend_dionizos/api/categories_controller.dart';
 import 'package:webfrontend_dionizos/api/events_controller.dart';
+import 'package:webfrontend_dionizos/api/storage_controllers.dart';
 import 'package:webfrontend_dionizos/utils/appColors.dart';
 import 'package:webfrontend_dionizos/views/organizer_panel/panel_navigation_bar.dart';
 import 'package:webfrontend_dionizos/views/organizer_panel/session_ended.dart';
@@ -455,7 +456,12 @@ class _EventAddModState extends State<EventAddMod> {
                                     alignment: Alignment.topLeft,
                                     child: TextButton(
                                         child: const Text('Edit photos'),
-                                        onPressed: () async {}),
+                                        onPressed: () {
+                                          PickedEventId()
+                                              .set(widget.eventId.toString());
+                                          context.go(
+                                              '/organizerPanel/eventPhotos');
+                                        }),
                                   ))
                               : Container(),
                           Row(
