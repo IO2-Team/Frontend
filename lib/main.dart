@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:webfrontend_dionizos/api/categories_controller.dart';
 import 'package:webfrontend_dionizos/api/events_controller.dart';
 import 'package:webfrontend_dionizos/api/organizer_controller.dart';
+import 'package:webfrontend_dionizos/views/PhotoPage/event_photos_view.dart';
 import 'package:webfrontend_dionizos/views/account/account_view.dart';
 import 'package:webfrontend_dionizos/views/home/home_view.dart';
 import 'package:webfrontend_dionizos/views/organizer_panel/event_creation_view.dart';
@@ -51,6 +52,12 @@ final GoRouter _router = GoRouter(
                 path: 'eventDetails',
                 builder: (BuildContext context, GoRouterState state) {
                   return EventDetailsView();
+                },
+              ),
+              GoRoute(
+                path: 'eventPhotos',
+                builder: (BuildContext context, GoRouterState state) {
+                  return EventPhotosView();
                 },
               ),
               GoRoute(

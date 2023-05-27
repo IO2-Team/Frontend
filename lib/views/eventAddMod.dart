@@ -448,6 +448,16 @@ class _EventAddModState extends State<EventAddMod> {
                                             ))
                                     ])),
                           ),
+                          widget.eventId != null
+                              ? Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Align(
+                                    alignment: Alignment.topLeft,
+                                    child: TextButton(
+                                        child: const Text('Edit photos'),
+                                        onPressed: () async {}),
+                                  ))
+                              : Container(),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [

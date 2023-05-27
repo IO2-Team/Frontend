@@ -190,6 +190,20 @@ class EventsController extends found.ChangeNotifier {
       return ResponseCase.FAILED;
     }
   }
+
+  Future<ResponseWithState> getImagesPaths({required int id}) async {
+    try {
+      final result = await api.getPhoto(id: id);
+      List<String> imagesPaths = [];
+      if (result.data != null) imagesPaths = result.data!.asList();
+      return ResponseWithState(imagesPaths, ResponseCase.OK);
+    } on DioError catch (e) {
+      if (e.response!.statusCode == 403) {
+        return ResponseWithState(null, ResponseCase.SESSION_ENDED);
+      }
+      return ResponseWithState(null, ResponseCase.FAILED);
+    }
+  }
 }
 
 class EventListItem {

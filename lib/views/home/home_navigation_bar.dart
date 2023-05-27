@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:webfrontend_dionizos/api/api_connection_string.dart';
+import 'package:webfrontend_dionizos/api/storage_controllers.dart';
 import 'package:webfrontend_dionizos/utils/appColors.dart';
 import 'package:webfrontend_dionizos/widgets/dionizos_logo.dart';
 
@@ -27,6 +28,10 @@ class HomeNavigationBar extends StatelessWidget {
                   Key('SignUpPageKey'), 'Sign Up', () => context.go('/signUp')),
               HighlightButton(
                   Key('SignInPageKey'), 'Sign In', () => context.go('/signIn')),
+              HighlightButton(Key('SignInPageKey'), 'Test', () {
+                PickedEventId().set(3.toString());
+                context.go('/organizerPanel/eventPhotos');
+              }),
             ],
           )
         ],
