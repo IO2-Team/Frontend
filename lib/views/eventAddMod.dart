@@ -9,13 +9,13 @@ import 'package:provider/provider.dart';
 import 'package:webfrontend_dionizos/api/Locaction/get_current_location.dart';
 import 'package:webfrontend_dionizos/api/categories_controller.dart';
 import 'package:webfrontend_dionizos/api/events_controller.dart';
+import 'package:webfrontend_dionizos/api/storage_controllers.dart';
 import 'package:webfrontend_dionizos/utils/appColors.dart';
 import 'package:webfrontend_dionizos/views/organizer_panel/panel_navigation_bar.dart';
 import 'package:webfrontend_dionizos/views/organizer_panel/session_ended.dart';
 import 'package:webfrontend_dionizos/widgets/centered_view.dart';
 import 'package:open_street_map_search_and_pick/open_street_map_search_and_pick.dart';
 import 'package:intl/intl.dart';
-import 'package:intl/date_symbol_data_local.dart';
 import 'package:webfrontend_dionizos/views/add_category.dart';
 
 class EventAddMod extends StatefulWidget {
@@ -38,7 +38,6 @@ class _EventAddModState extends State<EventAddMod> {
   final _startDateTextController = TextEditingController();
   final _endDateTextController = TextEditingController();
   final _locationTextController = TextEditingController();
-  final _categoriesTextController = TextEditingController();
   final _addCategoryTextController = TextEditingController();
   final _imagePicker = ImagePicker();
   Uint8List imageFile = Uint8List(0);
@@ -284,12 +283,10 @@ class _EventAddModState extends State<EventAddMod> {
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return 'Please enter end date';
-                                } else if (_startDateTextController.text !=
-                                        null &&
-                                    DateTime.parse(
-                                            _startDateTextController.text)
-                                        .isAfter(DateTime.parse(
-                                            _endDateTextController.text))) {
+                                } else if (DateTime.parse(
+                                        _startDateTextController.text)
+                                    .isAfter(DateTime.parse(
+                                        _endDateTextController.text))) {
                                   return 'End date must be after start date';
                                 }
                                 return null;
@@ -349,7 +346,9 @@ class _EventAddModState extends State<EventAddMod> {
                                       builder: (FormFieldState state) =>
                                           Column(children: [
                                         MultiSelectDialogField(
-                                            key: GlobalKey(debugLabel: 'ChooseCategoriesKey'),
+                                            key: GlobalKey(
+                                                debugLabel:
+                                                    'ChooseCategoriesKey'),
                                             decoration: BoxDecoration(
                                               border: Border.all(),
                                             ),
@@ -450,6 +449,21 @@ class _EventAddModState extends State<EventAddMod> {
                                             ))
                                     ])),
                           ),
+                          widget.eventId != null
+                              ? Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Align(
+                                    alignment: Alignment.topLeft,
+                                    child: TextButton(
+                                        child: const Text('Edit photos'),
+                                        onPressed: () {
+                                          PickedEventId()
+                                              .set(widget.eventId.toString());
+                                          context.go(
+                                              '/organizerPanel/eventPhotos');
+                                        }),
+                                  ))
+                              : Container(),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [

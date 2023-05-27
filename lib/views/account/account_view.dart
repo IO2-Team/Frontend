@@ -204,6 +204,7 @@ class _AccountViewState extends State<AccountView> {
                 child: TextFormField(
                   key: Key('accountConfirmPasswordKey'),
                   readOnly: _editMode ? false : true,
+                  controller: _confirmationCodeTextController,
                   obscureText: true,
                   obscuringCharacter: '*',
                   decoration: const InputDecoration(

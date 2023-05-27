@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import 'package:webfrontend_dionizos/api/api_connection_string.dart';
-import 'package:webfrontend_dionizos/api/categories_controller.dart';
-import 'package:webfrontend_dionizos/api/events_controller.dart';
-import 'package:webfrontend_dionizos/api/organizer_controller.dart';
+import 'package:webfrontend_dionizos/api/storage_controllers.dart';
 import 'package:webfrontend_dionizos/utils/appColors.dart';
 import 'package:webfrontend_dionizos/widgets/dionizos_logo.dart';
 
@@ -13,11 +10,6 @@ class HomeNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    EventsController eventsController = context.watch<EventsController>();
-    OrganizerController organizerController =
-        context.watch<OrganizerController>();
-    CategoriesController categoriesController =
-        context.watch<CategoriesController>();
     return Container(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -36,6 +28,10 @@ class HomeNavigationBar extends StatelessWidget {
                   Key('SignUpPageKey'), 'Sign Up', () => context.go('/signUp')),
               HighlightButton(
                   Key('SignInPageKey'), 'Sign In', () => context.go('/signIn')),
+              HighlightButton(Key('SignInPageKey'), 'Test', () {
+                PickedEventId().set(3.toString());
+                context.go('/organizerPanel/eventPhotos');
+              }),
             ],
           )
         ],
@@ -45,7 +41,7 @@ class HomeNavigationBar extends StatelessWidget {
 }
 
 class BackendSelectionButton extends StatefulWidget {
-  var backendUpdate;
+  final backendUpdate;
   BackendSelectionButton({super.key, required this.backendUpdate});
 
   @override
@@ -111,7 +107,7 @@ class _BackendSelectionButtonState extends State<BackendSelectionButton> {
 class HighlightButton extends StatelessWidget {
   HighlightButton(this.buttonKey, this.title, this.action);
   final String title;
-  var action;
+  final action;
   final buttonKey;
 
   @override
