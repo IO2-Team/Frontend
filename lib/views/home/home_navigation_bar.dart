@@ -28,10 +28,6 @@ class HomeNavigationBar extends StatelessWidget {
                   Key('SignUpPageKey'), 'Sign Up', () => context.go('/signUp')),
               HighlightButton(
                   Key('SignInPageKey'), 'Sign In', () => context.go('/signIn')),
-              HighlightButton(Key('SignInPageKey'), 'Test', () {
-                PickedEventId().set(3.toString());
-                context.go('/organizerPanel/eventPhotos');
-              }),
             ],
           )
         ],
