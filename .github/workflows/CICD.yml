@@ -36,7 +36,7 @@ jobs:
       run: flutter test --platform chrome -v
     
     - name: Build release project
-      run: flutter build web --web-renderer html
+      run: flutter build web --web-renderer html --dart-define=BLOB_KEY=${{ secrets.BLOB_KEY }}
 
     - name: Upload production-ready build files
       uses: actions/upload-artifact@v2

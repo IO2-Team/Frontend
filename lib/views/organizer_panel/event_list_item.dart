@@ -83,9 +83,6 @@ class EventsListItem extends StatelessWidget {
   }
 
   List<Category> eventCategories(EventListItem event) {
-    if (event.categories == null) {
-      return List<Category>.empty();
-    }
     return event.categories.toList();
   }
 

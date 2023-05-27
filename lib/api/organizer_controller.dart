@@ -54,8 +54,9 @@ class OrganizerController extends ChangeNotifier {
       final userData = await api.getOrganizer(sessionToken: token);
       return ResponseWithState(userData.data!, ResponseCase.OK);
     } on DioError catch (e) {
-      if (e.response!.statusCode == 403)
+      if (e.response!.statusCode == 403) {
         return ResponseWithState(null, ResponseCase.SESSION_ENDED);
+      }
       return ResponseWithState(null, ResponseCase.FAILED);
     }
   }
@@ -76,7 +77,7 @@ class OrganizerController extends ChangeNotifier {
 
   Future<bool> confirmAccount(String code) async {
     try {
-      final confirmResponse = await api.confirm(id: userId, code: code);
+      await api.confirm(id: userId, code: code);
       _isPending = false;
       return true;
     } catch (e) {
@@ -98,7 +99,7 @@ class OrganizerController extends ChangeNotifier {
       OrganizerPatchBuilder builder = OrganizerPatchBuilder();
       builder.name = userName;
       builder.password = password;
-      final eventsResponse = await api.patchOrganizer(
+      await api.patchOrganizer(
           sessionToken: token,
           id: id.toString(),
           organizerPatch: builder.build());
@@ -119,8 +120,7 @@ class OrganizerController extends ChangeNotifier {
       return ResponseCase.SESSION_ENDED;
     }
     try {
-      final eventsResponse =
-          await api.deleteOrganizer(sessionToken: token, id: id.toString());
+      await api.deleteOrganizer(sessionToken: token, id: id.toString());
       return ResponseCase.OK;
     } on DioError catch (e) {
       if (e.response!.statusCode == 403) return ResponseCase.SESSION_ENDED;

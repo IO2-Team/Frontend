@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
-import 'package:test/test.dart' as test;
 import 'package:webfrontend_dionizos/api/organizer_controller.dart';
-import 'package:webfrontend_dionizos/views/signUp/signup_view.dart';
 import 'package:webfrontend_dionizos/views/signUp/singUp_form.dart';
 import 'package:webfrontend_dionizos/widgets/centered_view.dart';
 
 void main() {
   testWidgets('singup_noEmptyFields', (WidgetTester tester) async {
-    tester.binding.window.physicalSizeTestValue = Size(1920, 1080);
-    tester.binding.window.devicePixelRatioTestValue = 1.0;
+    tester.view.physicalSize = Size(1920, 1080);
+    tester.view.devicePixelRatio = 1.0;
 
     final userNameField = find.byKey(ValueKey('signUp_username'));
     final emailField = find.byKey(ValueKey('signUp_email'));
