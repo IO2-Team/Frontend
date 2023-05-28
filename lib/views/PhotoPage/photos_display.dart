@@ -1,23 +1,14 @@
 import 'dart:convert';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:multi_select_flutter/multi_select_flutter.dart';
-import 'package:openapi/openapi.dart';
 import 'package:provider/provider.dart';
-import 'package:webfrontend_dionizos/api/Locaction/get_current_location.dart';
 import 'package:webfrontend_dionizos/api/blob.dart';
-import 'package:webfrontend_dionizos/api/categories_controller.dart';
 import 'package:webfrontend_dionizos/api/events_controller.dart';
-import 'package:webfrontend_dionizos/utils/appColors.dart';
 import 'package:webfrontend_dionizos/views/organizer_panel/panel_navigation_bar.dart';
 import 'package:webfrontend_dionizos/views/organizer_panel/session_ended.dart';
 import 'package:webfrontend_dionizos/widgets/centered_view.dart';
-import 'package:open_street_map_search_and_pick/open_street_map_search_and_pick.dart';
-import 'package:intl/intl.dart';
-import 'package:webfrontend_dionizos/views/add_category.dart';
 
 class PhotosDisplay extends StatefulWidget {
   final int eventId;
@@ -33,8 +24,6 @@ class _PhotosDisplayState extends State<PhotosDisplay> {
   @override
   Widget build(BuildContext context) {
     EventsController eventsController = context.watch<EventsController>();
-    CategoriesController categoriesController =
-        context.watch<CategoriesController>();
     return Scaffold(
       backgroundColor: Colors.white,
       body: CenteredView(
@@ -127,14 +116,13 @@ class _PhotosDisplayState extends State<PhotosDisplay> {
     if (response.status != ResponseCase.OK) return response;
     List<ImageFile> images = [];
     for (String imagePath in response.data) {
-      String imageString;
+      String imageString = "";
       try {
         imageString = await bloblController.get(imagePath);
+        images.add(ImageFile(base64.decode(imageString), imagePath));
       } catch (e) {
-        print(e.toString());
         continue;
       }
-      images.add(ImageFile(base64.decode(imageString), imagePath));
     }
     return ResponseWithState(images, ResponseCase.OK);
   }
