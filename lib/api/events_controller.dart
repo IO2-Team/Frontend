@@ -206,41 +206,17 @@ class EventsController extends found.ChangeNotifier {
     }
   }
 
-  String getCustomUniqueId() {
-    const String pushChars =
-        '-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz';
-    int lastPushTime = 0;
-    List lastRandChars = [];
-    int now = DateTime.now().millisecondsSinceEpoch;
-    bool duplicateTime = (now == lastPushTime);
-    lastPushTime = now;
-    List timeStampChars = List<String>.filled(8, '0');
-    for (int i = 7; i >= 0; i--) {
-      timeStampChars[i] = pushChars[now % 64];
-      now = (now / 64).floor();
-    }
-    if (now != 0) {
-      print("Id should be unique");
-    }
-    String uniqueId = timeStampChars.join('');
-    if (!duplicateTime) {
-      for (int i = 0; i < 12; i++) {
-        lastRandChars.add((Random().nextDouble() * 64).floor());
-      }
-    } else {
-      int i = 0;
-      for (int i = 11; i >= 0 && lastRandChars[i] == 63; i--) {
-        lastRandChars[i] = 0;
-      }
-      lastRandChars[i]++;
-    }
-    for (int i = 0; i < 12; i++) {
-      uniqueId += pushChars[lastRandChars[i]];
-    }
-    return uniqueId;
+  String getCustomUniqueId(int length) {
+    const _chars =
+        'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+    Random _rnd = Random();
+
+    return String.fromCharCodes(Iterable.generate(
+        length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
   }
 
-  Future<ResponseWithState> addPhotoPath({required int eventId}) async {
+  Future<ResponseWithState> addPhotoPath(
+      {required int eventId, int counter = 0}) async {
     String token = "";
     try {
       token = await _sessionTokenController.get();
@@ -248,7 +224,7 @@ class EventsController extends found.ChangeNotifier {
       return ResponseWithState(null, ResponseCase.SESSION_ENDED);
     }
     try {
-      String path = eventId.toString() + '_' + getCustomUniqueId();
+      String path = 'e' + eventId.toString() + '_' + getCustomUniqueId(4);
       await api.putPhoto(
           sessionToken: token, id: eventId.toString(), path: path);
       return ResponseWithState(path, ResponseCase.OK);
@@ -256,6 +232,8 @@ class EventsController extends found.ChangeNotifier {
       if (e.response!.statusCode == 403) {
         return ResponseWithState(null, ResponseCase.SESSION_ENDED);
       }
+      if (counter < 5)
+        return addPhotoPath(eventId: eventId, counter: counter + 1);
       return ResponseWithState(null, ResponseCase.FAILED);
     }
   }
